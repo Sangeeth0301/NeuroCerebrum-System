@@ -1,0 +1,298 @@
+<title>NeuroMech-Warn</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --bg:#F5F7F9; --surface:#FFFFFF; --ink:#16202B; --muted:#5A6676; --rule:#D9E0E7;
+  --accent:#0C7471; --accent-soft:#E2F1F0; --warn:#A8690F; --warn-soft:#FBF1E0;
+  --ictal:#B42318; --ictal-soft:#FBE9E7; --trace:#2D3A48;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"Source Serif 4", Georgia, "Times New Roman", serif;
+  --mono:"JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0E141B; --surface:#151E28; --ink:#E4EAF0; --muted:#97A3B0; --rule:#26323F;
+    --accent:#45B8B2; --accent-soft:#12302F; --warn:#E3A546; --warn-soft:#33260F;
+    --ictal:#F0675D; --ictal-soft:#3A1916; --trace:#B8C4D0;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0E141B; --surface:#151E28; --ink:#E4EAF0; --muted:#97A3B0; --rule:#26323F;
+  --accent:#45B8B2; --accent-soft:#12302F; --warn:#E3A546; --warn-soft:#33260F;
+  --ictal:#F0675D; --ictal-soft:#3A1916; --trace:#B8C4D0;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.65;padding-inline:16px;padding-block:0 64px}
+.wrap{max-width:780px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);line-height:1.15;text-wrap:balance;margin:0}
+h1{font-size:clamp(2.4rem,7vw,3.6rem);font-weight:700;letter-spacing:-.02em}
+h2{font-size:1.6rem;font-weight:700;letter-spacing:-.01em}
+h3{font-size:1.12rem;font-weight:600}
+p{margin:0}
+.eyebrow{font-family:var(--mono);font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+header{padding-block:56px 28px;display:grid;gap:14px}
+.sub{font-size:1.2rem;color:var(--muted);max-width:62ch}
+.meta{font-family:var(--mono);font-size:.8rem;color:var(--muted)}
+/* life-cycle strip */
+.strip{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:16px 16px 10px;margin-block:8px 8px}
+.strip-scroll{overflow-x:auto}
+.strip svg{display:block;width:100%;min-width:560px;height:auto}
+.strip text{font-family:var(--mono);font-size:11px;fill:var(--muted)}
+.strip .lbl-warn{fill:var(--warn);font-weight:600}
+.strip .lbl-ictal{fill:var(--ictal);font-weight:600}
+.cap{font-size:.86rem;color:var(--muted);margin-top:6px}
+section{padding-block:36px;border-top:1px solid var(--rule);display:grid;gap:16px}
+.sec-head{display:flex;gap:14px;align-items:baseline}
+.sec-num{font-family:var(--mono);font-size:.85rem;color:var(--muted);min-width:1.6em}
+ul{margin:0;padding-left:1.2em;display:grid;gap:6px}
+li::marker{color:var(--accent)}
+strong{font-weight:600}
+.primary{background:var(--accent-soft);border-left:3px solid var(--accent);padding:18px 20px;border-radius:0 8px 8px 0;display:grid;gap:10px}
+.primary .lead{font-size:1.15rem}
+.claim{font-style:italic;background:var(--surface);border:1px solid var(--rule);border-radius:8px;padding:16px 18px}
+.claim b{font-style:normal;font-family:var(--mono);color:var(--accent);font-weight:600}
+.table-wrap{overflow-x:auto;border:1px solid var(--rule);border-radius:8px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:.92rem}
+th,td{text-align:left;vertical-align:top;padding:10px 14px;border-bottom:1px solid var(--rule)}
+th{font-family:var(--display);font-weight:600;font-size:.86rem;color:var(--muted);background:var(--bg)}
+tr:last-child td{border-bottom:0}
+td.num{font-family:var(--mono);font-size:.84rem;font-variant-numeric:tabular-nums}
+.obj{display:grid;gap:22px}
+.obj article{display:grid;gap:8px}
+.obj .tag{font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.params{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font-family:var(--mono);font-size:.8rem;padding:3px 9px;border-radius:999px;border:1px solid var(--rule);background:var(--surface)}
+.chip.e{color:var(--ictal);border-color:currentColor}
+.chip.i{color:var(--accent);border-color:currentColor}
+.chip.t{color:var(--muted)}
+.types{display:flex;flex-wrap:wrap;gap:6px}
+.pair{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.box{border:1px solid var(--rule);border-radius:8px;padding:14px 16px;background:var(--surface);display:grid;gap:6px}
+.box .k{font-family:var(--mono);font-size:.74rem;letter-spacing:.08em;text-transform:uppercase}
+.box.m .k{color:var(--accent)} .box.inf .k{color:var(--warn)}
+.flow{font-family:var(--mono);font-size:.85rem;color:var(--muted)}
+.flow span{color:var(--ink)}
+.who{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.scope li{color:var(--ink)}
+.scope{background:var(--warn-soft);border-radius:8px;padding:16px 20px}
+footer{padding-top:28px;border-top:1px solid var(--rule);font-family:var(--mono);font-size:.78rem;color:var(--muted)}
+@media (max-width:520px){ body{font-size:16px} section{padding-block:28px} }
+</style>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow">Problem statement &amp; objectives · TUSZ</div>
+  <h1>NeuroMech-Warn</h1>
+  <p class="sub">Earlier than ever: a neuroscience-grounded system for forecasting, classifying and understanding epileptic seizures before they strike.</p>
+  <p class="meta">Dataset: Temple University Hospital EEG Seizure Corpus (TUSZ)</p>
+
+  <figure class="strip" aria-label="Seizure life cycle on an EEG trace, with the warning window before onset">
+    <div class="strip-scroll">
+      <svg id="lc" viewBox="0 0 760 170" role="img" aria-label="EEG trace across interictal, preictal, ictal and postictal phases">
+        <rect x="300" y="18" width="180" height="112" fill="var(--warn-soft)"/>
+        <rect x="480" y="18" width="160" height="112" fill="var(--ictal-soft)"/>
+        <line x1="480" y1="12" x2="480" y2="136" stroke="var(--ictal)" stroke-width="1.5" stroke-dasharray="3 3"/>
+        <path id="trace" fill="none" stroke="var(--trace)" stroke-width="1.3" stroke-linejoin="round"/>
+        <text x="20" y="152">interictal · calm</text>
+        <text x="300" y="152" class="lbl-warn">preictal · WARNING WINDOW</text>
+        <text x="484" y="152" class="lbl-ictal">ictal · onset → spread</text>
+        <text x="648" y="152">postictal</text>
+        <text x="484" y="12" class="lbl-ictal">t = 0</text>
+        <text x="300" y="12" class="lbl-warn">← forecast as early as possible</text>
+      </svg>
+    </div>
+    <figcaption class="cap">The goal lives in the amber band: push the alarm further left of onset than previous methods, without raising more false alarms.</figcaption>
+  </figure>
+</header>
+
+<section>
+  <div class="sec-head"><span class="sec-num">1</span><h2>The problem</h2></div>
+  <p>Epilepsy affects around 50 million people worldwide. The most dangerous part of epilepsy is that seizures strike without warning.</p>
+  <ul>
+    <li>Current AI systems mostly detect a seizure only <strong>after</strong> it has begun, often seconds too late to act.</li>
+    <li>On TUSZ, real-time systems alarm around <strong>15 seconds after onset</strong>, and the strongest recent models do not report how early they detect.</li>
+    <li>Prediction studies on TUSZ report only window-level accuracy (~70% sensitivity, ~60% specificity), with <strong>no fair measure of warning time</strong>.</li>
+    <li>Most published prediction results (90–99%) come from patient-specific or leaky evaluations that do not hold for new patients.</li>
+    <li>Existing systems act as <strong>black boxes</strong>: they say "seizure" but not what kind, where it started, how it spreads, what it will do to the body, or what is happening inside the brain.</li>
+  </ul>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-num">2</span><h2>Primary objective</h2></div>
+  <div class="primary">
+    <p class="lead">To <strong>detect and forecast epileptic seizures earlier</strong> than previous and recent state-of-the-art methods, measured as:</p>
+    <ul>
+      <li><strong>(a)</strong> a longer pre-onset warning time (minutes before the seizure), and</li>
+      <li><strong>(b)</strong> a shorter onset-detection latency (seconds after the seizure begins),</li>
+    </ul>
+    <p>on TUSZ under a fair, patient-independent evaluation, while keeping sensitivity equal or higher and false alarms equal or lower.</p>
+  </div>
+  <h3>Headline claim, to be proven</h3>
+  <p class="claim">"On unseen patients, our system warns <b>X min</b> before seizure onset, compared with <b>Y min</b> for the best previous methods, at the same false-alarm rate and equal or higher sensitivity, and detects onset <b>Z s</b> earlier, across every seizure type."</p>
+  <h3>Benchmarks to beat</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Stage</th><th>Best previous result</th><th>What we must beat</th></tr></thead>
+      <tbody>
+        <tr><td>Onset detection (TUSZ)</td><td class="num">~15 s latency (real-time systems); SeizureTransformer and 2026 TUSZ benchmarks report no latency</td><td>Earlier alarm at the same false alarms / 24 h</td></tr>
+        <tr><td>Onset detection (cross-patient reference, CHB-MIT / SWEC-ETHZ)</td><td class="num">~8–16 s latency</td><td>Match or beat on external test</td></tr>
+        <tr><td>Prediction (TUSZ)</td><td class="num">MLSPred-Bench: ~70% sens, ~60% spec, AUC ~0.75–0.80, no warning time</td><td>Higher sensitivity at a longer, per-seizure warning time</td></tr>
+        <tr><td>Prediction (cross-patient reference, CHB-MIT 2026)</td><td class="num">~23 min lead, 74% sens, 0.32 FA / h</td><td>Longer or equal lead at ≤ 0.32 FA / h</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="cap">All baselines are re-run under one identical, fair protocol.</p>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-num">3</span><h2>Supporting objectives</h2></div>
+  <p>Each one either makes the system earlier or explains the early warning.</p>
+  <div class="obj">
+    <article>
+      <span class="tag">Before onset · main source of "earlier"</span>
+      <h3>3.1 Forecast using the brain's hidden warning signs</h3>
+      <p>Use neuroscience-based pre-seizure signals that previous deep learning methods ignore: critical slowing down, rising synchrony between regions, shifts in the 1/f spectral slope, and interictal spike changes. Raise an alert minutes before onset.</p>
+    </article>
+    <article>
+      <span class="tag">Before onset · neuroscience core</span>
+      <h3>3.2 Reveal hidden neural dynamics (neural mass digital twin)</h3>
+      <p>Scalp EEG reflects the summed activity of millions of neurons, so single neurons cannot be read directly. To bridge scalp voltage and neural activity, the project integrates biophysical neural mass models:</p>
+      <ul>
+        <li><strong>Jansen-Rit:</strong> pyramidal cells, excitatory interneurons and inhibitory interneurons, linked by sigmoid voltage-to-firing-rate and synaptic firing-rate-to-voltage transformations.</li>
+        <li><strong>Wendling:</strong> the epilepsy-specific extension, adding fast and slow inhibition.</li>
+      </ul>
+      <p>Using simulation-based inference, the system estimates these parameters for every EEG window, with uncertainty ranges:</p>
+      <div class="params">
+        <span class="chip e">A · excitatory gain</span>
+        <span class="chip i">B · slow inhibitory gain</span>
+        <span class="chip i">G · fast inhibitory gain</span>
+        <span class="chip t">a, b, g · time constants</span>
+      </div>
+      <p>Tracking them over time shows how the excitation/inhibition balance shifts as the brain approaches a seizure. This gives an additional early-warning signal and a scientific explanation of it.</p>
+    </article>
+    <article>
+      <span class="tag">At onset</span>
+      <h3>3.3 Classify the seizure type</h3>
+      <p><strong>Level 1:</strong> focal vs generalized. <strong>Level 2:</strong> the specific TUSZ type, with confidence:</p>
+      <div class="types">
+        <span class="chip">FNSZ focal non-specific</span><span class="chip">GNSZ generalized non-specific</span><span class="chip">CPSZ complex partial</span><span class="chip">ABSZ absence</span><span class="chip">TNSZ tonic</span><span class="chip">TCSZ tonic-clonic</span><span class="chip t">SPSZ · MYSZ · ATSZ (rare)</span>
+      </div>
+      <p>Report how early each seizure type can be forecast, showing where the system is earliest and why some types are harder.</p>
+    </article>
+    <article>
+      <span class="tag">During</span>
+      <h3>3.4 Map the spread: how other brain regions react</h3>
+      <p>Find the onset zone, track which regions are recruited and in what order, which regions resist, and predict where the seizure will spread next and whether it will generalize. Catching the seizure while it is still local contributes to earlier detection.</p>
+    </article>
+    <article>
+      <span class="tag">Body</span>
+      <h3>3.5 Predict the body's reaction</h3>
+      <p>Estimate how the body will respond, and quantify how much time the warning gives <strong>before</strong> physical symptoms appear.</p>
+      <div class="pair">
+        <div class="box m"><span class="k">Measured</span><p>Heart-rate change from the ECG channel; muscle activity from EEG.</p></div>
+        <div class="box inf"><span class="k">Inferred</span><p>Awareness loss, staring, automatisms, stiffening or convulsions, from seizure type and spread.</p></div>
+      </div>
+    </article>
+    <article>
+      <span class="tag">Visual</span>
+      <h3>3.6 Visualize the brain at every moment</h3>
+      <p class="flow"><span>calm</span> → <span>warning signs</span> → <span>onset</span> → <span>spread</span> → <span>end</span></p>
+      <ul>
+        <li>Live EEG and ECG</li>
+        <li>2D scalp activity map</li>
+        <li>3D brain surface showing estimated source activity</li>
+        <li>Brain-network graph of interacting regions and hubs</li>
+        <li><strong>Virtual neurons:</strong> a simulated excitatory/inhibitory population (digital twin) driven by the patient's estimated parameters</li>
+        <li>Risk meter showing when and why the warning was raised</li>
+      </ul>
+    </article>
+    <article>
+      <span class="tag">After</span>
+      <h3>3.7 Explain and report every event</h3>
+      <p>Auto-generate a complete seizure analysis report: warning timeline and reasons, warning time gained, seizure type, onset zone, spread path, body reaction, duration, seizure burden, status epilepticus risk, and an uncertainty flag for expert review.</p>
+    </article>
+    <article>
+      <span class="tag">Reliability</span>
+      <h3>3.8 Be trustworthy and deployable</h3>
+      <p>Filter clinical artifacts (eye blinks, muscle, electrode noise) to keep false alarms low, which a fair earliness claim requires. Work on patients never seen before, run in real time, and demonstrate a tiny, few-channel version for wearables and brain implants.</p>
+    </article>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-num">4</span><h2>Fair evaluation principles</h2></div>
+  <ul>
+    <li><strong>Patient-independent:</strong> training and testing patients never overlap.</li>
+    <li>Earliness is only claimed at <strong>matched sensitivity and false-alarm rate</strong>.</li>
+    <li>Warning time and detection latency reported <strong>per seizure, per type</strong>.</li>
+    <li>Performance compared against a <strong>random / chance predictor</strong>.</li>
+    <li>Previous methods <strong>re-evaluated on the same data and protocol</strong>.</li>
+    <li>Confirmed on a <strong>second, external dataset</strong>.</li>
+  </ul>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-num">5</span><h2>Who it helps</h2></div>
+  <div class="who">
+    <div class="box"><h3>Patients</h3><p>More minutes of warning to get safe, call for help, or take rescue medication, before symptoms begin.</p></div>
+    <div class="box"><h3>Hospitals &amp; doctors</h3><p>Earlier ICU alarms, automatic seizure typing, onset localization, spread maps and ready-made reports.</p></div>
+    <div class="box"><h3>Neuroscience</h3><p>New evidence on how seizures build up, how excitation/inhibition changes before a seizure, and how each seizure type differs.</p></div>
+    <div class="box"><h3>Neurotechnology</h3><p>For Neuralink-style implants, wearables and closed-loop devices: a compact, early, explainable forecasting brain that could one day trigger preventive stimulation or medication.</p></div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-num">6</span><h2>What makes it novel</h2></div>
+  <ul>
+    <li>Aims to be <strong>earlier than existing methods</strong>, proven fairly on the same data at the same false-alarm rate.</li>
+    <li><strong>First fair warning-time and latency comparison on TUSZ</strong>, per seizure type.</li>
+    <li>Combines neuroscience warning signs and <strong>neural mass model (E/I) estimates</strong> with AI, rather than a black-box classifier.</li>
+    <li>Covers the <strong>full seizure life cycle</strong> (before, onset, spread, body) in one system.</li>
+    <li>Offers a <strong>visual window into the brain</strong>, including a patient-driven digital twin of excitatory and inhibitory neural activity.</li>
+    <li>Designed with a <strong>path toward wearables and brain implants</strong>.</li>
+  </ul>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-num">7</span><h2>Honest scope</h2></div>
+  <ul class="scope">
+    <li>Scalp EEG measures large neural populations, not individual neurons. Neuron-level views are <strong>model-based simulations driven by real EEG</strong>.</li>
+    <li>Forecasting targets <strong>minutes ahead</strong>, limited by TUSZ recording lengths.</li>
+    <li>Body reactions beyond heart rate and muscle activity are <strong>inferred</strong>.</li>
+    <li>Research prototype, <strong>not a certified medical device</strong>.</li>
+  </ul>
+</section>
+
+<section>
+  <div class="sec-head"><span class="sec-num">8</span><h2>Expected outcomes</h2></div>
+  <ul>
+    <li>A seizure forecasting system that <strong>warns earlier than previous methods</strong> under fair evaluation.</li>
+    <li>Seizure-type classification, spread mapping, body-reaction estimation and full event reports.</li>
+    <li>An interactive <strong>brain visualization dashboard</strong> with a neural digital twin.</li>
+    <li>Scientific findings on pre-seizure brain dynamics and per-type warning times, contributing to <strong>clinical AI, computational neuroscience and neurotechnology</strong>.</li>
+  </ul>
+</section>
+
+<footer>NeuroMech-Warn · problem statement v1 · research prototype</footer>
+</div>
+
+<script>
+(function(){
+  // Deterministic synthetic EEG trace for the life-cycle strip.
+  var seed=7; function rnd(){seed=(seed*16807)%2147483647;return seed/2147483647-.5;}
+  var d="", mid=74;
+  for(var x=20;x<=740;x+=1.5){
+    var y;
+    if(x<300){ y=rnd()*14 + Math.sin(x/5)*4; }
+    else if(x<480){ var k=(x-300)/180; y=rnd()*(14+10*k) + Math.sin(x/(5-2*k))*(4+10*k); }
+    else if(x<640){ var r=Math.min(1,(x-480)/30); y=Math.sin(x/2.2)*46*r + rnd()*10; }
+    else { y=Math.sin(x/11)*16*Math.exp(-(x-640)/60) + rnd()*5; }
+    d += (d?"L":"M") + x.toFixed(1) + " " + (mid+y).toFixed(1);
+  }
+  document.getElementById("trace").setAttribute("d",d);
+})();
+</script>
