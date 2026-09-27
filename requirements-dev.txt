@@ -1,0 +1,10 @@
+# Development tools (tests, lint, notebooks).
+# Install:  pip install -r requirements-dev.txt
+pytest>=8.0
+pytest-cov>=5.0
+ruff>=0.5
+mypy>=1.10
+pre-commit>=3.7
+jupyterlab>=4.1
+ipykernel>=6.29
+nbstripout>=0.7
