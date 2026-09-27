@@ -1,0 +1,348 @@
+<title>NeuroMech-Warn Architecture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --bg:#F5F7F9; --surface:#FFFFFF; --ink:#16202B; --muted:#5A6676; --rule:#D9E0E7;
+  --accent:#0C7471; --accent-soft:#E2F1F0; --warn:#A8690F; --warn-soft:#FBF1E0;
+  --ictal:#B42318; --ictal-soft:#FBE9E7; --neuro:#5B4BB0; --neuro-soft:#EEEBFA;
+  --display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --body:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0E141B; --surface:#151E28; --ink:#E4EAF0; --muted:#97A3B0; --rule:#26323F;
+    --accent:#45B8B2; --accent-soft:#12302F; --warn:#E3A546; --warn-soft:#33260F;
+    --ictal:#F0675D; --ictal-soft:#3A1916; --neuro:#A99BF0; --neuro-soft:#231E3D;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0E141B; --surface:#151E28; --ink:#E4EAF0; --muted:#97A3B0; --rule:#26323F;
+  --accent:#45B8B2; --accent-soft:#12302F; --warn:#E3A546; --warn-soft:#33260F;
+  --ictal:#F0675D; --ictal-soft:#3A1916; --neuro:#A99BF0; --neuro-soft:#231E3D;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.62;padding-inline:16px;padding-block:0 72px}
+.wrap{max-width:980px;margin:0 auto}
+.prose{max-width:760px}
+h1,h2,h3{font-family:var(--display);line-height:1.15;text-wrap:balance;margin:0}
+h1{font-size:clamp(2.1rem,6vw,3.3rem);font-weight:700;letter-spacing:-.02em}
+h2{font-size:1.5rem;font-weight:700;letter-spacing:-.01em}
+h3{font-size:1.06rem;font-weight:600}
+p{margin:0}
+a{color:var(--accent)}
+.eyebrow{font-family:var(--mono);font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+header{padding-block:52px 22px;display:grid;gap:14px}
+.sub{font-size:1.15rem;color:var(--muted);max-width:66ch}
+.meta{font-family:var(--mono);font-size:.8rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px 18px}
+.note{background:var(--warn-soft);border-radius:8px;padding:14px 18px}
+nav.toc{display:flex;flex-wrap:wrap;gap:8px;padding-block:10px 4px}
+nav.toc a{font-family:var(--mono);font-size:.78rem;text-decoration:none;border:1px solid var(--rule);background:var(--surface);color:var(--ink);padding:5px 10px;border-radius:999px}
+nav.toc a:hover,nav.toc a:focus-visible{border-color:var(--accent);color:var(--accent)}
+section{padding-block:34px;border-top:1px solid var(--rule);display:grid;gap:16px;scroll-margin-top:12px}
+.code{font-family:var(--mono);font-size:.75rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+.sec-head{display:grid;gap:6px}
+ul,ol{margin:0;padding-left:1.2em;display:grid;gap:6px}
+li::marker{color:var(--accent)}
+.diagram{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:14px;overflow-x:auto}
+.diagram pre.mermaid{margin:0;min-width:760px;background:transparent}
+pre.ascii{margin:0;font-family:var(--mono);font-size:.78rem;line-height:1.35;color:var(--ink);background:var(--surface);border:1px solid var(--rule);border-radius:8px;padding:14px 16px;overflow-x:auto}
+.table-wrap{overflow-x:auto;border:1px solid var(--rule);border-radius:8px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:.88rem;line-height:1.45}
+th,td{text-align:left;vertical-align:top;padding:9px 12px;border-bottom:1px solid var(--rule)}
+th{font-family:var(--display);font-weight:600;font-size:.82rem;color:var(--muted);background:var(--bg);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+.num{font-family:var(--mono);font-size:.8rem;font-variant-numeric:tabular-nums}
+.comp{display:grid;gap:12px;border-left:3px solid var(--rule);padding-left:18px}
+.comp.c-front{border-color:var(--muted)}
+.comp.c-neuro{border-color:var(--neuro)}
+.comp.c-learn{border-color:var(--accent)}
+.comp.c-alarm{border-color:var(--warn)}
+.comp.c-out{border-color:var(--ictal)}
+.comp .tag{font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.pill{display:inline-block;font-family:var(--mono);font-size:.7rem;padding:1px 8px;border-radius:999px;border:1px solid currentColor;white-space:nowrap}
+.pill.new{color:var(--ictal)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;font-family:var(--mono);font-size:.76rem;color:var(--muted)}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px;background:var(--c)}
+.bases{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.base{background:var(--surface);border:1px solid var(--rule);border-radius:8px;padding:14px 16px;display:grid;gap:6px;align-content:start}
+.base .k{font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.risk{background:var(--warn-soft);border-radius:8px;padding:14px 20px}
+footer{padding-top:26px;border-top:1px solid var(--rule);font-family:var(--mono);font-size:.76rem;color:var(--muted);display:grid;gap:4px}
+@media (max-width:560px){ body{font-size:16px} section{padding-block:26px} }
+</style>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow">NeuroMech-Warn · design proposal v1 · no code yet</div>
+  <h1>NeuroMech-Warn architecture</h1>
+  <p class="sub">A causal, neuroscience-guided electrode-graph model with a neural-mass digital twin, a time-to-seizure forecaster and a cascaded alarm, built to warn earlier than prior work on unseen TUSZ patients.</p>
+  <div class="meta"><span>Dataset: TUH EEG Seizure Corpus (TUSZ)</span><span>9 components · 5 heads · 8 novel contributions</span><span>File: DOCS/ARCHITECTURE.md</span></div>
+  <p class="note prose">"Earlier and better than previous work" is the design goal. Only experiments on TUSZ can prove it, so the design includes an <a href="#ablation">ablation plan</a> that shows which part produces each gain.</p>
+</header>
+
+<nav class="toc" aria-label="Sections">
+  <a href="#overview">Overview</a><a href="#bases">Base approaches</a><a href="#components">Components</a><a href="#heads">Heads</a><a href="#alarm">Alarm engine</a><a href="#training">Training</a><a href="#novel">Novelty</a><a href="#targets">Targets</a><a href="#ablation">Ablations</a><a href="#risks">Risks</a>
+</nav>
+
+<section id="overview">
+  <div class="sec-head"><span class="code">The big picture</span><h2>From raw EEG to an early, explained alarm</h2></div>
+  <div class="legend" aria-label="Colour legend">
+    <span style="--c:var(--muted)">front-end</span><span style="--c:var(--neuro)">neuroscience</span><span style="--c:var(--accent)">learned model</span><span style="--c:var(--warn)">alarm</span><span style="--c:var(--ictal)">outputs</span>
+  </div>
+  <div class="diagram">
+<pre class="mermaid">
+flowchart TB
+  IN["TUSZ EEG · 22-ch TCP<br/>+ ECG channel"] --> F0["0 · Causal front-end<br/>montage · causal filters · artifact gate (TUAR)<br/>FAST clock 1 s · SLOW clock 10 s"]
+  F0 --> B1["1 · Neuro-dynamics bank<br/>1/f exponent · band powers<br/>critical slowing · spike rate<br/>wPLI + directed flow"]
+  F0 --> B2["2 · Neural-mass digital twin<br/>Wendling model + amortized SBI<br/>A · B · G · a · b · g + uncertainty"]
+  F0 --> B3["3 · Electrode-graph encoder<br/>shared per-channel CNN<br/>dynamic graph attention<br/>causal state-space model"]
+  B1 -- "brain-state tokens" --> FU
+  B2 -- "physiology tokens" --> FU
+  B1 -. "live connectivity = graph edges" .-> B3
+  B3 --> FU["4 · Neuro-guided fusion<br/>gated cross-attention · patient-baseline norm<br/>domain-adversarial training"]
+  FU --> H1["H1 · Time-to-seizure<br/>hazard over minutes"]
+  FU --> H2["H2 · Onset<br/>soft labels, per second"]
+  FU --> H3["H3 · Per-electrode<br/>+ spread forecast"]
+  FU --> H4["H4 · Seizure type<br/>focal/gen → 4 → 7"]
+  FU --> H5["H5 · Body<br/>ECG heart rate + semiology"]
+  H1 --> AL["6 · Cascaded alarm engine<br/>forecast: CUSUM + k-of-n + refractory<br/>onset: evidence accumulation<br/>forecast lowers onset threshold<br/>conformal false-alarm budget"]
+  H2 --> AL
+  AL --> OUT["7 · Explainer · report · brain dashboard<br/>scalp map · 3D brain · network · virtual neurons"]
+  H3 --> OUT
+  H4 --> OUT
+  H5 --> OUT
+  OUT --> D8["8 · Distilled 4-channel student<br/>wearable / implant"]
+  classDef front fill:#EEF1F4,stroke:#5A6676,color:#16202B
+  classDef neuro fill:#EEEBFA,stroke:#5B4BB0,color:#16202B
+  classDef learn fill:#E2F1F0,stroke:#0C7471,color:#16202B
+  classDef alarm fill:#FBF1E0,stroke:#A8690F,color:#16202B
+  classDef out fill:#FBE9E7,stroke:#B42318,color:#16202B
+  class IN,F0 front
+  class B1,B2 neuro
+  class B3,FU,H1,H2,H3,H4,H5 learn
+  class AL alarm
+  class OUT,D8 out
+</pre>
+  </div>
+</section>
+
+<section id="bases">
+  <div class="sec-head"><span class="code">Built on the literature</span><h2>Three base approaches, plus supporting ideas</h2></div>
+  <div class="bases">
+    <div class="base"><span class="k">Base #1 · when to alarm</span><h3>Soft-label onset + evidence accumulation</h3><p>Xu 2024, <em>Expert Syst. Appl.</em> 2.3 s latency, but patient-specific and never tested on TUSZ.</p></div>
+    <div class="base"><span class="k">Base #2 · where and what</span><h3>Electrode-graph spatiotemporal encoder</h3><p>Tang 2022 (ICLR) and Craley 2022 (<em>PLoS ONE</em>, SZTrack). Per-electrode outputs give spread and onset zone; graph pooling gives type.</p></div>
+    <div class="base"><span class="k">Base #3 · why the brain changes</span><h3>Brain-dynamics early-warning features</h3><p>Duma 2025 (<em>BMC Med.</em>) and Maturana 2020 (<em>Nat. Commun.</em>). 1/f exponent, critical slowing and connectivity change minutes before onset.</p></div>
+  </div>
+  <p class="prose">Supporting: Jemal 2024 (domain adaptation), Meng 2025 (k-of-n alarm), Zabihi 2026 (alarm-budget protocol), Karoly 2018 and Sun 2024 (neural-mass modelling), Jeppesen 2025 (ECG), Liu 2026 (small models are enough).</p>
+</section>
+
+<section id="components">
+  <div class="sec-head"><span class="code">Components 0 – 4</span><h2>What each block does</h2></div>
+
+  <div class="comp c-front">
+    <span class="tag">Component 0 · front-end</span><h3>Causal front-end</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Part</th><th>What it does</th><th>Based on</th></tr></thead>
+      <tbody>
+        <tr><td>Montage</td><td>TUSZ → 22-channel TCP bipolar at 250 Hz; handles AR1, LE2, AR3, LE4 references</td><td>MLSPred-Bench, Zabihi</td></tr>
+        <tr><td>Causal filters</td><td>IIR 60 Hz notch + 0.5–45 Hz, forward-only, so no future samples are used</td><td>Fixes Zabihi, Koutsouvelis</td></tr>
+        <tr><td>ECG extraction</td><td>EKG channel → R-peaks → heart rate</td><td>Jeppesen 2025</td></tr>
+        <tr><td>Artifact gate</td><td>Small CNN trained on TUAR flags eye, muscle and electrode artifacts per channel; flagged channels are down-weighted</td><td>Zabihi: artifacts drive false alarms</td></tr>
+        <tr><td>Two clocks <span class="pill new">new</span></td><td>FAST: 4-s windows every 1 s for onset. SLOW: 60-s windows every 10 s over the last 30 min for forecasting</td><td>One model, two timescales</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="comp c-neuro">
+    <span class="tag">Component 1 · neuroscience</span><h3>Neuro-dynamics feature bank ("brain-state tokens")</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Feature group</th><th>What it captures</th><th>Evidence</th></tr></thead>
+      <tbody>
+        <tr><td>Aperiodic 1/f exponent + offset (specparam)</td><td>Excitation/inhibition balance</td><td>Duma 2025: rises ~13 min before seizures</td></tr>
+        <tr><td>Band powers δ θ α β γ</td><td>Rhythm shifts</td><td>Duma, Zabihi</td></tr>
+        <tr><td>Critical slowing: variance, lag-1 autocorrelation, decay time</td><td>Loss of stability</td><td>Maturana 2020, Chang 2018</td></tr>
+        <tr><td>Interictal spike rate</td><td>Network irritability</td><td>Baud 2018</td></tr>
+        <tr><td>Line length, Hjorth, entropy</td><td>Roughness and complexity</td><td>Zabihi top features</td></tr>
+        <tr><td>wPLI / PLV per band + directed in/out flow</td><td>Rising synchrony; which region drives the others</td><td>Duma, Khambhati 2024</td></tr>
+      </tbody>
+    </table></div>
+    <p class="prose">Each feature is kept as a trajectory, so the model sees how fast it is changing.</p>
+  </div>
+
+  <div class="comp c-neuro">
+    <span class="tag">Component 2 · neuroscience core</span><h3>Neural-mass digital twin <span class="pill new">new</span></h3>
+<pre class="ascii">OFFLINE:  Wendling model (pyramidal + excitatory + slow & fast inhibitory interneurons)
+          → simulate ~200k signals over a wide range of A, B, G, a, b, g
+          → train an amortized neural posterior estimator (sbi library)
+            input : spectrum + 1/f + stats of one channel-window
+            output: probability distribution over A, B, G, a, b, g
+
+ONLINE:   every slow window, every channel → posterior in milliseconds
+          → E/I indicators A/(B+G), A/G, uncertainty width → "physiology tokens"
+          → drives the virtual-neuron simulation in the dashboard</pre>
+    <ul class="prose">
+      <li>Turns EEG into interpretable brain parameters (Wendling 2002, Karoly 2018).</li>
+      <li>Amortized: trained once, instant per window, so it runs live (SBI, DeepSIF idea).</li>
+      <li>Direction-agnostic: learns whether E/I rises or falls before seizures. Duma found a shift toward inhibition.</li>
+      <li>Keeps the uncertainty as a signal of its own.</li>
+    </ul>
+  </div>
+
+  <div class="comp c-learn">
+    <span class="tag">Component 3 · learned model</span><h3>Electrode-graph encoder</h3>
+<pre class="ascii">Fast window per electrode (4 s)
+ → SHARED temporal CNN (EEGNet-style: frequency filters → features)    [SZTrack, Jemal]
+ → node embedding h_i(t) for each of 22 electrodes
+ → DYNAMIC GRAPH: edges = learned + electrode distance + LIVE wPLI       [new]
+ → 2 graph-attention layers                                               [Tang]
+ → CAUSAL temporal model per node: selective state-space (Mamba-style) or GRU
+ → per-node states + attention-pooled global state</pre>
+    <ul class="prose">
+      <li>Per-electrode outputs give the spread map and onset zone, and work with fewer channels.</li>
+      <li>The graph rewires as synchrony rises, so the graph itself becomes a warning signal.</li>
+      <li>Target size 1–3M parameters, within reach of a single GPU.</li>
+    </ul>
+  </div>
+
+  <div class="comp c-learn">
+    <span class="tag">Component 4 · learned model</span><h3>Neuro-guided fusion</h3>
+    <ul class="prose">
+      <li><strong>Cross-attention:</strong> each electrode's embedding attends to its own and its neighbours' brain-state and physiology tokens.</li>
+      <li><strong>Gating:</strong> learned trust between neuroscience and learned features, for example trusting 1/f more under artifact.</li>
+      <li><strong>Patient-baseline normalization</strong> <span class="pill new">new</span>: features also expressed against the patient's first calm minutes in the session.</li>
+      <li><strong>Domain-adversarial training</strong> (DANN, Jemal 2024) so features do not encode patient identity.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="heads">
+  <div class="sec-head"><span class="code">Component 5</span><h2>Five output heads</h2></div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Head</th><th>Output</th><th>Training signal</th><th>Novel?</th></tr></thead>
+    <tbody>
+      <tr><td><strong>H1 Time-to-seizure</strong></td><td>Probability of onset in 0–1, 1–2, 2–5, 5–10, 10–20, 20–30 min, or not within 30 min (discrete-time hazard)</td><td>TUSZ onset times; censoring where follow-up is short</td><td><span class="pill new">new</span> "likely in ~X min"</td></tr>
+      <tr><td><strong>H2 Onset</strong></td><td>Per-second ictal probability</td><td>Soft labels across onset-crossing windows (Xu)</td><td><span class="pill new">new</span> first cross-patient on TUSZ</td></tr>
+      <tr><td><strong>H3 Per-electrode + spread</strong></td><td>Seizure probability per electrode now; electrodes recruited in the next 5/10 s; generalization risk</td><td>TUSZ channel-level annotations (to verify)</td><td><span class="pill new">new</span> spread forecast + metric</td></tr>
+      <tr><td><strong>H4 Seizure type</strong></td><td>Focal/generalized → 4 classes (Tang) → 7 TUSZ types</td><td>Hierarchical focal loss, updated each second</td><td>Improves Tang with neuro features</td></tr>
+      <tr><td><strong>H5 Body</strong></td><td>Measured: HR change, tachycardia onset, muscle power. Inferred: awareness, automatisms, convulsions</td><td>ECG features + type/spread → semiology table</td><td><span class="pill new">new</span> TUSZ ECG unused so far</td></tr>
+      <tr><td>Uncertainty</td><td>Confidence per output</td><td>Ensemble / evidential + conformal</td><td>"Needs expert review" flag</td></tr>
+    </tbody>
+  </table></div>
+  <h3>Soft preictal ramp</h3>
+<pre class="ascii">label
+ 1.0 |                                  ████ ictal
+     |                           ▁▂▃▅▆▇█
+ 0.0 |▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▂▃▅          ← gradual rise, not a hard 0 → 1 step
+     └──── interictal ──────┴── preictal ──┴── onset</pre>
+  <p class="prose">Xu's soft-label idea, extended from seconds to minutes. Risk is taught to build up, which gives earlier and smoother warnings than an arbitrary preictal cut-off.</p>
+</section>
+
+<section id="alarm">
+  <div class="sec-head"><span class="code">Component 6 · where "earlier" is decided</span><h2>Cascaded alarm engine</h2></div>
+<pre class="ascii">Stage A · FORECAST ALARM
+  hazard H1 → log-likelihood ratio → CUSUM accumulator (quickest change detection)
+  + k-of-n confirmation + 30-min refractory period                         [Meng]
+  → "⚠ Seizure likely in ~X min" + reasons
+
+Stage B · ONSET ALARM
+  onset prob H2 → accumulated rising evidence → alarm                       [Xu]
+  CASCADE: if Stage A is active, Stage B's threshold is LOWERED (prior boost)  [new]
+
+Calibration: thresholds tuned on TUSZ dev under an explicit false-alarm budget,
+             then frozen                                                     [Zabihi]
+             conformal risk control guarantees the budget                    [new]</pre>
+  <p class="prose">The forecast stage buys minutes of warning. Its prior boost buys seconds at onset.</p>
+  <div class="comp c-out">
+    <span class="tag">Components 7 – 8 · outputs and deployment</span>
+    <ul class="prose">
+      <li><strong>Explainer:</strong> contribution per feature group (1/f, slowing, connectivity, E/I parameters, learned graph) plus graph-attention maps.</li>
+      <li><strong>Report:</strong> template-based, as in README section 4.3.</li>
+      <li><strong>Dashboard:</strong> scalp topomap (MNE), 3D brain sources (fsaverage + eLORETA), live network graph, virtual neurons driven by the inferred A/B/G, risk timeline.</li>
+      <li><strong>Tiny model:</strong> distilled 4-channel behind-the-ear student, under 100k parameters, int8, with MFLOPs per second reported.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="training">
+  <div class="sec-head"><span class="code">Training</span><h2>Four stages and one multi-task loss</h2></div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Stage</th><th>What trains</th><th>Data</th></tr></thead>
+    <tbody>
+      <tr><td>S1 Offline twin</td><td>Wendling simulator → SBI posterior estimator</td><td>Simulations only</td></tr>
+      <tr><td>S2 Self-supervised pretraining</td><td>Graph encoder predicts next seconds and masked channels</td><td>TUSZ train split only</td></tr>
+      <tr><td>S3 Multi-task fine-tuning</td><td>Everything jointly</td><td>TUSZ train; model selection on dev</td></tr>
+      <tr><td>S4 Calibration and distillation</td><td>Alarm thresholds, conformal budget, tiny student</td><td>TUSZ dev, then frozen</td></tr>
+    </tbody>
+  </table></div>
+<pre class="ascii">L = λ1·Hazard-NLL(H1) + λ2·SoftBCE(H2) + λ3·ChannelBCE(H3) + λ4·SpreadBCE(H3-forecast)
+  + λ5·HierarchicalFocalCE(H4) + λ6·BodyMSE(H5)
+  + λ7·DomainAdversarial + λ8·TemporalSmoothness</pre>
+</section>
+
+<section id="novel">
+  <div class="sec-head"><span class="code">Claims we could make</span><h2>Eight novel contributions</h2></div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>#</th><th>Contribution</th><th>Built on</th><th>Gap filled</th></tr></thead>
+    <tbody>
+      <tr><td class="num">N1</td><td>Time-to-seizure hazard forecasting with soft preictal ramps</td><td>Xu, survival analysis</td><td>Nobody predicts "in how many minutes"</td></tr>
+      <tr><td class="num">N2</td><td>Neuro-guided dynamic electrode graph</td><td>Tang, SZTrack, Duma</td><td>No model mixes neuroscience markers into a graph network</td></tr>
+      <tr><td class="num">N3</td><td>Amortized neural-mass digital twin on scalp EEG as live forecasting input</td><td>Karoly, DeepSIF, SBI</td><td>Never done on scalp EEG or for forecasting</td></tr>
+      <tr><td class="num">N4</td><td>Cascaded forecast → onset alarm with CUSUM and conformal FA guarantee</td><td>Xu, Meng, Zabihi</td><td>Forecasting and detection always separate</td></tr>
+      <tr><td class="num">N5</td><td>Spread forecasting and first numerical spread metric on TUSZ</td><td>SZTrack</td><td>Spread only shown as pictures</td></tr>
+      <tr><td class="num">N6</td><td>Patient-baseline normalization + domain-adversarial training</td><td>Jemal</td><td>Cross-patient collapse</td></tr>
+      <tr><td class="num">N7</td><td>Per-seizure-type earliness + ECG body module on TUSZ</td><td>Zabihi's limitation</td><td>Not reported by anyone</td></tr>
+      <tr><td class="num">N8</td><td>Distilled 4-channel wearable/implant version</td><td>SeizeIT2, Liu</td><td>Links research to neurotech</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="targets">
+  <div class="sec-head"><span class="code">To test, not promises</span><h2>Targets against previous results</h2></div>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Metric (TUSZ eval, unseen patients)</th><th>Best previous</th><th>Target</th></tr></thead>
+    <tbody>
+      <tr><td>Onset latency, median</td><td class="num">~8–16 s (Lee 2022, older TUSZ)</td><td class="num"><strong>≤ 5 s</strong> at matched false alarms</td></tr>
+      <tr><td>Detection sensitivity @ false alarms</td><td class="num">0.75 @ 0.68 FA/h (Zabihi 2026)</td><td class="num"><strong>≥ 0.75 @ ≤ 0.5 FA/h</strong></td></tr>
+      <tr><td>Forecast</td><td class="num">Window AUC 0.71–0.75, no warning time (MLSPred-Bench)</td><td class="num"><strong>AUC ≥ 0.80</strong>; event sens ≥ 60% @ ≤ 0.3 FA/h; median warning ≥ 5 min; beats random predictor</td></tr>
+      <tr><td>Seizure type, 4-class wF1</td><td class="num">0.749 (Tang 2022)</td><td class="num"><strong>≥ 0.77</strong></td></tr>
+      <tr><td>Spread / onset zone</td><td class="num">21/34 hemisphere+lobe (SZTrack, other data)</td><td>First TUSZ numbers + spread-forecast score</td></tr>
+      <tr><td>Short focal seizures</td><td class="num">33% detected (Zabihi)</td><td>Report per type and improve</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="ablation">
+  <div class="sec-head"><span class="code">Proof, one part at a time</span><h2>Ablation plan</h2></div>
+  <p class="prose">Remove one component at a time and measure warning time, onset latency, sensitivity and false alarms:</p>
+  <ol class="prose">
+    <li>No neuro-dynamics bank</li>
+    <li>No digital twin</li>
+    <li>Static graph instead of dynamic graph</li>
+    <li>Hard labels instead of soft ramps</li>
+    <li>Binary head instead of hazard head</li>
+    <li>No cascade</li>
+    <li>No patient-baseline normalization</li>
+  </ol>
+</section>
+
+<section id="risks">
+  <div class="sec-head"><span class="code">Known risks</span><h2>What could limit the results</h2></div>
+  <ul class="risk prose">
+    <li><strong>Short TUSZ sessions</strong> cap the hazard head at about 30 min, and many seizures have little preictal data. Check the data first.</li>
+    <li><strong>Per-electrode spread labels</strong> depend on TUSZ v2 channel annotations, which need verifying.</li>
+    <li><strong>ECG</strong> is missing in some recordings, so the body module must work without it.</li>
+    <li><strong>The digital twin</strong> is the riskiest scientific bet. If E/I parameters add nothing, that is reported as a finding.</li>
+    <li><strong>Scope is large.</strong> Build order: 0 → 3 → 1 → H2/H1 → alarm → 2 → H3–H5 → dashboard → tiny model.</li>
+  </ul>
+</section>
+
+<footer>
+  <span>NeuroMech-Warn · architecture proposal v1</span>
+  <span>Source: DOCS/ARCHITECTURE.md · literature: research/reports/</span>
+</footer>
+</div>
