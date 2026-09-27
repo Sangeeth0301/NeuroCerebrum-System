@@ -9,7 +9,7 @@ Every file of the project belongs to exactly one phase. A phase is finished only
 
 | Phase | Name | Est. time | Depends on | Status |
 |---|---|---|---|---|
-| P0 | Project setup and scaffolding | ~1 wk | – | ✅ in review |
+| P0 | Project setup and scaffolding | ~1 wk | – | ✅ done (PR #1, fixes PR #2) |
 | P1 | Data foundation and TUSZ audit | ~2 wk | P0, TUSZ | ⏳ waiting for dataset |
 | P2 | Preprocessing, windows and labels | ~2 wk | P1 | planned |
 | P3 | Evaluation framework and baselines | ~2–3 wk | P2 | planned |
