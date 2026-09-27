@@ -83,8 +83,12 @@ four_class:
 # Events closer than this are merged into one seizure (seconds).
 merge_gap_s: 0.0
 
-# Audit: preictal durations (minutes) to count seizures for when choosing hazard bins.
-audit_preictal_minutes: [1, 2, 5, 10, 15, 20, 30]
+# Audit (scripts/00_audit_tusz.py)
+audit_preictal_minutes: [1, 2, 5, 10, 15, 20, 30]   # horizons checked for hazard bins
+audit_limit: null              # audit only the first N files (quick check); null = all
+dry_run: false                 # true = use a synthetic TUSZ in data/cache (no real data needed)
+audit_report: ${paths.docs}/DATA_AUDIT.md
+seizures_table: ${paths.processed}/seizures.parquet
 
 # Splits written by scripts/01_make_splits.py
 splits:
