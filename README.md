@@ -78,7 +78,7 @@ data/       local datasets (git-ignored)
 outputs/    checkpoints, logs, results (git-ignored)
 DOCS/       problem statement, architecture, roadmap, decisions
 research/   literature review
-ref/        reference papers
+ref/        reference paper list with download links (PDFs kept locally, not in git)
 ```
 
 ## License
