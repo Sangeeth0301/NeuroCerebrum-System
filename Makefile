@@ -24,13 +24,13 @@ setup-dev:  ## Install light core + dev tools + pre-commit hooks
 	pre-commit install
 
 # ── quality ───────────────────────────────────────────────────────────────────
-lint:  ## Ruff lint + format check
-	$(PY) -m ruff check src tests scripts
-	$(PY) -m ruff format --check src tests scripts
+lint:  ## Ruff lint + format check (whole repo; exclusions in pyproject.toml)
+	$(PY) -m ruff check .
+	$(PY) -m ruff format --check .
 
 format:  ## Auto-format and fix lint issues
-	$(PY) -m ruff format src tests scripts
-	$(PY) -m ruff check --fix src tests scripts
+	$(PY) -m ruff format .
+	$(PY) -m ruff check --fix .
 
 typecheck:  ## Mypy on src/
 	$(PY) -m mypy

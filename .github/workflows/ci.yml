@@ -19,8 +19,10 @@ jobs:
         with:
           python-version: "3.11"
       - run: pip install "ruff>=0.5"
-      - run: ruff check src tests
-      - run: ruff format --check src tests
+      # Lint the whole repo; DOCS/, research/, ref/ and notebooks/ are excluded in
+      # pyproject.toml, and scripts/ + app/ are picked up automatically when they exist.
+      - run: ruff check .
+      - run: ruff format --check .
 
   test:
     runs-on: ${{ matrix.os }}
