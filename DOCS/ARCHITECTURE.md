@@ -1,230 +1,201 @@
-# NeuroMech-Warn — Proposed Architecture
+# NeuroMech-Warn — Final Architecture (v2)
 
-**Status:** design proposal v1 (no code yet). Built from the strongest recent approaches in the literature review (`research/reports/Seizure forecasting literature review.md`) plus new components that fill the gaps found there. Every objective in `NeuroMech-Warn_Problem_Statement.md` is served by at least one component.
+**Graph Neural-Mass Dynamics for forecasting when, where and what type of seizure is coming — and explaining it through the brain's own loss of stability.**
 
-> "Earlier and better than previous work" is the design goal. Only experiments on TUSZ can prove it, so the design includes an ablation plan that shows which part produces each gain.
+**Status:** final design v2 (no code yet). Built on the literature review (`research/reports/Seizure forecasting literature review.md`), validated against the problem statement (`NeuroMech-Warn_Problem_Statement.md`), and novelty-checked against 2022–2026 work. Every objective is served by at least one component.
+
+> "Earlier and better than previous work" is the design goal. Only experiments on TUSZ can prove it, so the design keeps a strong fallback (v1.1 backbone) and an ablation plan that shows which part produces each gain.
 
 ---
 
-## 1. The big picture
+## 1. Architecture at a glance
 
 ```
-                         ┌───────────────────────────────────────────────┐
-  TUSZ EEG (22-ch TCP)   │ 0. CAUSAL FRONT-END                          │
-  + ECG channel ────────►│  montage · causal filters · artifact gate    │
-                         │  two clocks: FAST (1 s hop) + SLOW (10 s hop)│
-                         └───────┬───────────────┬───────────────┬──────┘
-                                 │               │               │
-        ┌────────────────────────▼───┐ ┌─────────▼──────────┐ ┌──▼─────────────────┐
-        │ 1. NEURO-DYNAMICS BANK     │ │ 2. NEURAL-MASS     │ │ 3. ELECTRODE-GRAPH │
-        │ (per channel, minutes)     │ │    DIGITAL TWIN    │ │    ENCODER         │
-        │ 1/f exponent · band powers │ │ Wendling model +   │ │ shared per-channel │
-        │ critical slowing (var, AC) │ │ amortized SBI →    │ │ temporal CNN →     │
-        │ spike rate · line length   │ │ A, B, G, a, b, g   │ │ dynamic graph      │
-        │ PLV / directed flow        │ │ + uncertainty      │ │ attention → causal │
-        └────────────┬───────────────┘ └─────────┬──────────┘ │ state-space model  │
-                     │ "brain-state tokens"      │ "physiology│ (per node + global)│
-                     └───────────────┬───────────┘  tokens"   └──────────┬─────────┘
-                                     ▼                                   │
-                      ┌──────────────────────────────────────────────────▼──┐
-                      │ 4. NEURO-GUIDED FUSION                               │
-                      │ node embeddings ⟷ cross-attention with brain-state   │
-                      │ & physiology tokens (gated) · patient-baseline norm  │
-                      └──────┬──────────┬──────────┬──────────┬──────────┬───┘
-                             ▼          ▼          ▼          ▼          ▼
-                     ┌───────────┐┌──────────┐┌──────────┐┌─────────┐┌──────────┐
-          5. HEADS   │H1 TIME-TO-││H2 ONSET  ││H3 PER-   ││H4 TYPE  ││H5 BODY   │
-                     │  SEIZURE  ││ (soft    ││ ELECTRODE││focal/gen││HR from   │
-                     │  hazard   ││ labels)  ││ + SPREAD ││→ 4 → 7  ││ECG +     │
-                     │ (minutes) ││(seconds) ││ FORECAST ││ classes ││semiology │
-                     └─────┬─────┘└────┬─────┘└────┬─────┘└────┬────┘└────┬─────┘
-                           └─────┬─────┘           │           │          │
-                                 ▼                 │           │          │
-                 ┌──────────────────────────────┐  │           │          │
-      6. ALARM   │ CASCADED EVIDENCE ENGINE     │  │           │          │
-                 │ forecast alarm (CUSUM + k/n) │  │           │          │
-                 │  └► lowers onset threshold   │  │           │          │
-                 │ onset alarm (accumulation)   │  │           │          │
-                 │ conformal false-alarm budget │  │           │          │
-                 └──────────────┬───────────────┘  │           │          │
-                                ▼                  ▼           ▼          ▼
-                 ┌────────────────────────────────────────────────────────────┐
-      7. OUTPUT  │ Explainer · Seizure report · Brain dashboard (scalp map,   │
-                 │ 3D brain, network, virtual neurons, timeline)              │
-                 └────────────────────────────────────────────────────────────┘
-      8. DEPLOY: distilled tiny 4-channel student model (wearable / implant)
+ EEG (22-ch) ──► 0. Causal front-end + artifact gate ──► SLOW (60 s/10 s)   FAST (4 s/1 s)
+ ECG ──────────► R-peaks · HR · HRV ──────────────────────────┐        │              │
+                                                              │        ▼              ▼
+          ┌──────────────────────────────┐    ┌─────────────────────────────────────────────┐
+          │ 1. Neuro-dynamics bank       │───►│ 3. GRAPH NEURAL-MASS ODE  (backbone)         │
+          │ 1/f · CSD · spikes · wPLI    │ W  │  per-electrode E/I populations (Wendling)    │
+          └──────────────────────────────┘ ij │  + graph coupling W_ij(t) + NN residual      │
+          ┌──────────────────────────────┐    │  gains A_i,B_i,G_i(t) drift ← SBI prior      │
+          │ 2. SBI twin (prior for gains)│───►│  must reproduce the real EEG                 │
+          └──────────────────────────────┘    └──────┬──────────┬──────────┬────────────────┘
+                                                     │ state x(t) │ Jacobian │ roll-forward
+                                                     ▼            ▼          ▼
+                        ┌───────────────────────────────────────────────────────────────┐
+                        │ 4. Neuro-guided fusion (+ ECG tokens, missing-modality safe)   │
+                        └───┬─────────────┬───────────────┬──────────────┬────────────┬──┘
+                            ▼             ▼               ▼              ▼            ▼
+                 ┌──────────────┐┌─────────────┐┌───────────────┐┌─────────────┐┌─────────┐
+                 │H1 COMPETING- ││H2 STABILITY ││H3 ONSET (soft ││H4 SPREAD:   ││H5 TYPE +│
+                 │ RISKS HAZARD ││ MARGIN m(t) ││ labels, per s)││ learned     ││ BODY    │
+                 │ when·type·   ││ −Re λ_max   ││               ││ + ODE       ││         │
+                 │ where        ││ per node    ││               ││ rollout     ││         │
+                 └──────┬───────┘└──────┬──────┘└──────┬────────┘└──────┬──────┘└────┬────┘
+                        └───────┬───────┘              │                │            │
+                                ▼                      ▼                ▼            ▼
+                 ┌─────────────────────────────────────────┐   ┌──────────────────────────┐
+                 │ 6. CASCADED ALARM                       │──►│ 7. Report · dashboard    │
+                 │ A: hazard + stability + HRV → CUSUM     │   │ virtual neurons = model  │
+                 │ B: onset + tachycardia → accumulation   │   │ state · spread preview   │
+                 │ bounded threshold drop · per-type thr.  │   └──────────────────────────┘
+                 │ one conformal false-alarm budget        │    8. distilled 4-ch student
+                 └─────────────────────────────────────────┘
 ```
 
-### Base approaches it builds on
-
+### Built on
 | Base | Paper | What we take |
 |---|---|---|
-| #1 Soft-label onset + evidence-accumulation alarm | Xu 2024, *Expert Syst. Appl.* | The main "earlier" mechanism (2.3 s latency, patient-specific) |
-| #2 Electrode-graph spatiotemporal encoder | Tang 2022 (ICLR), Craley 2022 (*PLoS ONE*, SZTrack) | Per-electrode outputs (spread, onset zone), graph pooling (type) |
-| #3 Brain-dynamics early-warning features | Duma 2025 (*BMC Med.*), Maturana 2020 (*Nat. Commun.*) | 1/f exponent, critical slowing, connectivity |
-| Supporting | Jemal 2024, Meng 2025, Zabihi 2026, Karoly 2018, Sun 2024 (DeepSIF), Jeppesen 2025, Liu 2026 | Domain adaptation, k-of-n alarm, alarm-budget protocol, neural-mass modelling, ECG, small models |
+| Soft-label onset + evidence-accumulation alarm | Xu 2024, *Expert Syst. Appl.* | Main "earlier" mechanism at onset |
+| Electrode-graph spatiotemporal modelling | Tang 2022 (ICLR), Craley 2022 (*PLoS ONE*, SZTrack) | Per-electrode outputs, graph coupling |
+| Brain-dynamics early-warning features | Duma 2025 (*BMC Med.*), Maturana 2020 (*Nat. Commun.*) | 1/f exponent, critical slowing, connectivity |
+| Neural-mass modelling | Wendling 2002, Karoly 2018, Sun 2024 (DeepSIF), SBI (Hashemi) | E/I populations, simulation-based priors |
+| Supporting | Jemal 2024, Meng 2025, Zabihi 2026, Jeppesen 2025, Liu 2026, Lemoine (EEGSurvNet) | Domain adaptation, k-of-n alarm, alarm-budget protocol, ECG, small models, survival heads |
 
 ---
 
 ## 2. Components
 
-### Component 0 — Causal front-end
-| Part | What it does | Based on |
-|---|---|---|
-| Montage | TUSZ → standard 22-channel TCP bipolar, resampled to 250 Hz; handles the 4 reference types (AR1, LE2, AR3, LE4) | MLSPred-Bench, Zabihi 2026 |
-| **Causal** filters | IIR notch 60 Hz + 0.5–45 Hz, forward-only (no future samples) | Fixes non-causal filtering in Zabihi, Koutsouvelis |
-| ECG extraction | EKG channel when present → R-peaks → heart rate | Jeppesen 2025 |
-| **Artifact gate** | Small CNN trained on **TUAR** flags eye / muscle / electrode artifacts per channel; flagged channels are down-weighted, not deleted | Zabihi: artifacts cause most false alarms |
-| **Two clocks** | FAST: 4-s windows every 1 s (onset). SLOW: 60-s windows every 10 s over the last 30 min (forecasting) | New: one model, two timescales |
+### 0 — Causal front-end
+| Part | What it does |
+|---|---|
+| Montage | TUSZ → 22-ch TCP bipolar, 250 Hz; handles AR1/LE2/AR3/LE4 references (MLSPred-Bench code) |
+| Causal filters | IIR 60 Hz notch + 0.5–45 Hz, forward-only |
+| Artifact gate | Small CNN trained on TUAR; flags eye/muscle/electrode artifacts per channel; down-weights, does not delete |
+| Two clocks | SLOW: 60-s windows every 10 s over last 30 min (forecasting). FAST: 4-s windows every 1 s (onset) |
+| ECG path | EKG channel when present → R-peaks → HR, HRV (minutes) and tachycardia onset (seconds) |
 
-### Component 1 — Neuro-dynamics feature bank ("brain-state tokens")
-Per channel, on the slow stream, all causal.
+### 1 — Neuro-dynamics bank ("brain-state tokens")
+Per channel, causal, kept as trajectories: aperiodic 1/f exponent + offset (specparam), band powers δθαβγ, critical slowing (variance, lag-1 AC, decay), interictal spike rate, line length / Hjorth / entropy, wPLI/PLV per band + directed in/out flow. **Slow wPLI** (forecasting) and **fast 4-s wPLI** (onset) both feed the graph coupling.
 
-| Feature group | What it captures | Evidence |
-|---|---|---|
-| **Aperiodic 1/f exponent + offset** (specparam) | Excitation/inhibition balance | Duma 2025 — rises ~13 min before seizures |
-| Periodic band powers δ θ α β γ | Rhythm shifts | Duma (δ/θ rise), Zabihi (θ bursts) |
-| **Critical slowing**: variance, lag-1 autocorrelation, decay time | Loss of stability | Maturana 2020, Chang 2018 |
-| Interictal spike rate | Network irritability | Baud 2018 |
-| Line length, Hjorth, entropy | Roughness / complexity | Zabihi top features |
-| **Connectivity**: wPLI/PLV per band + directed in/out flow | Rising synchrony; which region drives others | Duma (outflow from epileptic zone), Khambhati 2024 |
+### 2 — SBI twin (prior for the gains)
+Offline: Wendling model simulations → amortized neural posterior estimator. Online: per channel, per slow window → posterior over **A, B, G** (time constants fixed first) → initial/prior values for the backbone's gains. Validated with simulation-based calibration and posterior-predictive checks.
 
-Each feature is a **trajectory over time**; the model sees how fast it is changing.
-
-### Component 2 — Neural-mass digital twin
+### 3 — Graph Neural-Mass ODE backbone (GNM-ODE) — *core novelty*
 ```
-OFFLINE:  Wendling model (pyramidal + excitatory + slow & fast inhibitory
-          interneurons) → simulate ~200k signals over a wide range of A, B, G, a, b, g
-          → train an amortized neural posterior estimator (sbi library)
-          input: spectrum + 1/f + stats of one channel-window
-          output: probability distribution over A, B, G, a, b, g
+Each electrode i: latent E/I population  x_i = [pyramidal, excitatory, slow-inhibitory, fast-inhibitory]
 
-ONLINE:   every slow window, every channel → posterior in milliseconds
-          → E/I indicators: A/(B+G), A/G, uncertainty width
-          → "physiology tokens" for the fusion layer
-          → drives the virtual-neuron simulation in the dashboard
+   dx_i/dt =  Wendling_f( x_i ; A_i(t), B_i(t), G_i(t) )     ← mechanistic E/I dynamics
+            + Σ_j  W_ij(t) · S(x_j)                           ← graph coupling = spread
+            + NN_residual( x_i, context )                     ← learned correction
+
+   A_i, B_i, G_i (t) : slowly drifting gains, updated every slow window (SBI prior)
+   W_ij(t)           : dynamic coupling = live wPLI + electrode distance + learned
+   EEG_i ≈ observation(x_i)  → reconstruction loss keeps the latent physiological
 ```
-- Interpretable brain parameters (Wendling 2002, Karoly 2018).
-- Amortized simulation-based inference: train once, instant per window, runs live (SBI / VBI, DeepSIF idea).
-- **Direction-agnostic**: learns whether E/I rises or falls before seizures (Duma found a shift toward inhibition).
-- Uncertainty is kept as a signal.
-- **Novel:** simulation-based neural-mass estimation on scalp EEG as a live forecasting input.
+- Runs on a ~50 Hz latent, fixed-step solver, short rollouts.
+- The model's hidden state **is** a population of excitatory and inhibitory neurons: the dashboard's virtual neurons are the model itself.
+- **Fallback backbone:** v1.1 shared temporal CNN → dynamic graph attention → causal state-space model (Mamba-style/GRU). Kept for ablation and as a guaranteed baseline.
 
-### Component 3 — Electrode-graph encoder
-```
-Fast window per electrode (4 s)
- → SHARED temporal CNN (EEGNet-style: frequency filters → features)    [SZTrack, Jemal]
- → node embedding h_i(t) for each of the 22 electrodes
- → DYNAMIC GRAPH: edges = learned + electrode distance + LIVE connectivity (wPLI)
- → 2 graph-attention layers                                              [Tang]
- → CAUSAL temporal model per node: selective state-space (Mamba-style) or GRU
-                                                                          [fixes SZTrack BiLSTM]
- → per-node states + attention-pooled global state
-```
-- Per-electrode outputs → spread map, onset zone; works with fewer channels.
-- **Graph rewires as synchrony rises** — the graph itself is an early-warning signal (new).
-- Target size 1–3M parameters (Liu 2026: small specialists compete with foundation models).
+### 4 — Neuro-guided fusion
+Gated cross-attention between each electrode's state and its own + neighbours' brain-state tokens; **ECG tokens** with missing-modality dropout; **running robust patient baseline** (EW median of artifact-free, low-risk windows; population baseline at start); domain-adversarial training (DANN).
 
-### Component 4 — Neuro-guided fusion
-- **Cross-attention:** each electrode's embedding attends to its own and its neighbours' brain-state + physiology tokens.
-- **Gating:** learned trust between neuroscience and learned features (e.g. trust 1/f more under artifact).
-- **Patient-baseline normalization:** features also expressed as z-scores against the patient's first calm minutes in the session (cheap test-time adaptation, new for TUSZ).
-- **Domain-adversarial training** (DANN, Jemal 2024) so features don't encode patient identity.
+---
 
-### Component 5 — Multi-task heads
-| Head | Output | Training signal | Novel? |
+## 3. Heads
+| Head | Output | Training | Novel? |
 |---|---|---|---|
-| **H1 Time-to-seizure** | Probability the seizure starts in 0–1, 1–2, 2–5, 5–10, 10–20, 20–30 min, or not within 30 min (discrete-time hazard) | TUSZ onset times; censoring where follow-up is short | ✅ "Seizure likely in ~X min" instead of yes/no preictal |
-| **H2 Onset** | Per-second ictal probability | Soft labels across onset-crossing windows (Xu) | ✅ First cross-patient use on TUSZ |
-| **H3 Per-electrode + spread forecast** | Seizure probability per electrode now; electrodes recruited in next 5/10 s; generalization risk | TUSZ channel-level annotations (to verify) | ✅ Spread forecast + numerical spread metric |
-| **H4 Seizure type** | Focal/generalized → 4 classes (Tang) → 7 TUSZ types | Hierarchical focal loss, updated each second | Improves on Tang with neuro features |
-| **H5 Body** | Measured: HR change, tachycardia onset, muscle power. Inferred: awareness, automatisms, convulsions | ECG features + type/spread → semiology table (labelled inferred) | ✅ No TUSZ paper uses its ECG |
-| Uncertainty | Confidence per output | Ensemble / evidential + conformal | "Needs expert review" flag |
+| **H1 Competing-risks hazard** | For bins chosen by data audit (e.g. 0–1, 1–2, 2–5, 5–10, 10+ min): P(focal seizure starting at electrode *i*), P(generalized seizure), P(none yet) | Discrete-time competing-risks survival NLL; censoring for short follow-up | ✅ when + type + where **before onset** |
+| **H2 Stability margin** | m(t) = −Re λ_max of the GNM-ODE Jacobian, per electrode and global | Self-supervised from the learned dynamics; smoothed over slow windows | ✅ learned-dynamics tipping-point signal |
+| **H3 Onset** | Per-second ictal probability | Soft labels across onset-crossing windows (Xu) | ✅ first cross-patient on TUSZ |
+| **H4 Spread** | Per-electrode activity now; recruitment in next 5/10 s; generalization risk | Learned head (TUSZ per-channel labels) + GNM-ODE roll-forward ensemble | ✅ physics-based spread forecast + numeric metrics |
+| **H5 Type + body** | 4-class type (primary) / 7-class (secondary); HR change, tachycardia; inferred awareness / automatisms / convulsions | Noise-robust hierarchical loss; ECG features + semiology table (labelled inferred) | ✅ TUSZ ECG unused so far |
 
-**Soft preictal ramp** (Xu's idea extended from seconds to minutes):
-```
-label
- 1.0 |                                  ████ ictal
-     |                           ▁▂▃▅▆▇█
- 0.0 |▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▂▃▅          ← gradual rise, not a hard 0→1 step
-     └──── interictal ──────┴── preictal ──┴── onset
-```
-
-### Component 6 — Cascaded alarm engine
-```
-Stage A: FORECAST ALARM
-  hazard H1 → log-likelihood ratio → CUSUM accumulator (quickest change detection)
-  + k-of-n confirmation + 30-min refractory period                          [Meng]
-  → "⚠ Seizure likely in ~X min" + reasons
-
-Stage B: ONSET ALARM
-  onset prob H2 → accumulated rising evidence → alarm                        [Xu]
-  CASCADE: if Stage A is active, Stage B's threshold is LOWERED (prior boost)  NEW
-
-Calibration: thresholds tuned on TUSZ dev under an explicit false-alarm budget,
-             then frozen                                                      [Zabihi]
-             conformal risk control guarantees the FA budget                   NEW
-```
-
-### Component 7 — Explanation, report, dashboard
-- Alarm explanation: contribution per feature group (1/f, slowing, connectivity, E/I parameters, learned graph) + graph-attention maps.
-- Auto report (template-based, as in README §4.3).
-- Dashboard: scalp topomap (MNE), 3D brain sources (MNE fsaverage + eLORETA), live network graph, **virtual neurons** (Wendling model simulated with the patient's inferred A/B/G), risk timeline.
-
-### Component 8 — Tiny deployable model
-- Knowledge distillation into a **4-channel student** (behind-the-ear montage, as SeizeIT2), target < 100k parameters, int8.
-- Report MFLOPs per second of EEG → path to wearables and implants.
+**Numeric spread metrics:** onset-channel F1 · recruitment-order Kendall τ · time-to-recruit error (s) · next-channel F1 at 5 s / 10 s.
 
 ---
 
-## 3. Training plan
-| Stage | What trains | Data |
+## 4. Cascaded alarm (component 6)
+```
+Stage A · FORECAST   hazard (H1) + stability margin (H2) + HRV trend
+                     → log-likelihood ratio → CUSUM → k-of-n + 30-min refractory
+                     → "⚠ focal seizure likely in ~X min, left temporal"
+
+Stage B · ONSET      onset prob (H3) + tachycardia onset → accumulated evidence → alarm
+                     while A is active: threshold lowered by a BOUNDED amount (≤ 20%)
+
+Calibration          per-type thresholds; whole cascade calibrated to ONE false-alarm budget
+                     dev split by patient: half for thresholds, half for conformal calibration
+```
+
+## 5. Outputs (7, 8)
+Explainer (feature-group + gain + stability contributions, graph-attention maps) · auto seizure report · dashboard: scalp map, 3D brain (fsaverage + eLORETA), live network, **virtual neurons = model state**, spread preview from ODE rollout, risk timeline · **distilled 4-channel student** (<100k params, int8, MFLOPs reported).
+
+---
+
+## 6. Training
+| Stage | What | Data |
 |---|---|---|
-| S1 Offline twin | Wendling simulator → SBI posterior estimator | Simulations only |
-| S2 Self-supervised pretraining | Graph encoder predicts next seconds + masked channels | TUSZ **train split only** |
-| S3 Multi-task fine-tuning | Everything jointly | TUSZ train; selection on dev |
-| S4 Calibration & distillation | Alarm thresholds, conformal budget, tiny student | TUSZ dev (then frozen) |
+| S0 Data audit | Preictal durations, per-channel labels, ECG availability → hazard bins | TUSZ |
+| S1 SBI twin | Wendling simulations → posterior estimator | Simulations |
+| S2 Pretraining | Time-contrastive + masked-channel + next-seconds prediction | TUSZ train only (or TUEG minus eval patients) |
+| S3 Staged fine-tuning | H3 → H1/H2 → H4/H5; losses balanced by uncertainty weighting | TUSZ train; selection on dev-A |
+| S4 Calibration | Per-type thresholds, conformal budget, safe test-time adaptation rules | TUSZ dev-B (then frozen) |
+| S5 Distillation | 4-channel student | TUSZ train |
+| External test | Long-horizon forecasting, cross-site | CHB-MIT, Siena |
 
-**Loss**
 ```
-L = λ1·Hazard-NLL(H1) + λ2·SoftBCE(H2) + λ3·ChannelBCE(H3) + λ4·SpreadBCE(H3-forecast)
-  + λ5·HierarchicalFocalCE(H4) + λ6·BodyMSE(H5)
-  + λ7·DomainAdversarial + λ8·TemporalSmoothness
+L = w1·CompetingRisksNLL(H1) + w2·SoftBCE(H3) + w3·ChannelBCE + w4·SpreadBCE(H4)
+  + w5·NoiseRobustCE(H5-type) + w6·BodyMSE(H5) + w7·EEG-Reconstruction(GNM-ODE)
+  + w8·DomainAdversarial + w9·TemporalSmoothness        (w's learned by uncertainty weighting)
 ```
 
 ---
 
-## 4. Novel contributions
-| # | Contribution | Built on | Gap filled |
+## 7. Novel contributions (positioned against prior work)
+| # | Contribution | Closest prior work | Why ours is new |
 |---|---|---|---|
-| N1 | Time-to-seizure hazard forecasting with soft preictal ramps | Xu, survival analysis | Nobody predicts "in how many minutes" |
-| N2 | Neuro-guided dynamic electrode graph (edges = live connectivity, nodes carry E/I physiology) | Tang, SZTrack, Duma | No model mixes neuroscience markers into a graph network |
-| N3 | Amortized neural-mass digital twin on scalp EEG as live forecasting input | Karoly, DeepSIF, SBI | Never done on scalp EEG / for forecasting |
-| N4 | Cascaded forecast → onset alarm with CUSUM + conformal FA guarantee | Xu, Meng, Zabihi | Forecasting and detection always separate |
-| N5 | Spread forecasting + first numerical spread metric on TUSZ | SZTrack | Spread only shown as pictures |
-| N6 | Patient-baseline normalization + domain-adversarial training | Jemal | Cross-patient collapse |
-| N7 | Per-seizure-type earliness + ECG body module on TUSZ | Zabihi's limitation | Not reported by anyone |
-| N8 | Distilled 4-channel wearable/implant version | SeizeIT2, Liu | Links research to neurotech |
+| N1 | Graph Neural-Mass ODE backbone (trainable E/I dynamics per electrode, graph-coupled) | Kuramoto neural ODE on TUSZ (EMBC 2025); HP-GNN (PLOS One 2026) | E/I physiology, not phase oscillators; the twin *is* the model |
+| N2 | Stability margin from the learned Jacobian as early warning | Generic deep tipping-point warnings (PNAS 2021) | Measured on learned brain dynamics, per electrode |
+| N3 | Competing-risks hazard: when + type + where before onset | EEGSurvNet (days–years, no type/location) | Minute-scale, streaming, type & onset zone pre-onset |
+| N4 | Mechanistic spread rollout + numeric spread metrics on TUSZ | SZTrack (qualitative maps) | Physics-based forecast scored on per-channel labels |
+| N5 | Cascaded forecast → onset alarm, bounded prior boost, one conformal budget | Separate systems | Joint and calibrated |
+| N6 | Cardio-neural cascade (HRV minutes + tachycardia seconds) | EEG+ECG fusion, patient-specific (2016) | Cross-patient, TUSZ, missing-modality safe |
+| N7 | Per-type earliness and per-type thresholds | — | First on TUSZ |
+| N8 | Distilled 4-channel student of a mechanistic forecaster | Wearable detectors | Distilled from a neural-mass model |
+
+Dynamic connectivity graphs alone (AFC-GCN 2024, graph-generative GNN 2022, ODEBrain 2026) are **not** claimed as novel.
 
 ---
 
-## 5. Targets vs previous results (to test, not promises)
-| Metric (TUSZ eval, unseen patients) | Best previous | Target |
-|---|---|---|
-| Onset latency, median | ~8–16 s (Lee 2022, older TUSZ) | ≤ 5 s at matched false alarms |
-| Detection sensitivity @ false alarms | 0.75 @ 0.68 FA/h (Zabihi 2026) | ≥ 0.75 @ ≤ 0.5 FA/h |
-| Forecast | Window AUC 0.71–0.75, no warning time (MLSPred-Bench) | AUC ≥ 0.80; event sensitivity ≥ 60% @ ≤ 0.3 FA/h; median warning ≥ 5 min; beats random predictor |
-| Seizure type (4-class wF1) | 0.749 (Tang 2022) | ≥ 0.77 |
-| Spread / onset zone | 21/34 hemisphere+lobe (SZTrack, other data) | First TUSZ numbers + spread-forecast score |
-| Short focal seizures | 33% detected (Zabihi) | Report per type and improve |
+## 8. Targets and honest likelihood
+| Target (TUSZ eval, unseen patients) | Best previous | Target | Likelihood |
+|---|---|---|---|
+| Onset latency, median | ~8–16 s (Lee 2022) | ≤ 5 s at matched FA | Medium-high |
+| Detection sensitivity @ FA | 0.75 @ 0.68 FA/h (Zabihi 2026, offline) | ≥ 0.75 @ ≤ 0.5 FA/h, causal | Medium |
+| Forecast | Window AUC 0.71–0.75, no warning time (MLSPred-Bench) | Beat MLSPred; event sens ≥ 60% @ ≤ 0.3 FA/h; median warning ≥ 5 min; beats random predictor | Beat MLSPred: medium-high · AUC ≥ 0.80: medium-low |
+| Type before onset (focal vs generalized) | none | Above chance, reported per bin | Medium (first ever) |
+| Type at onset, 4-class wF1 | 0.749 (Tang 2022) | ≥ 0.77 | Medium |
+| Spread metrics | none on TUSZ | First numbers | High |
+| Per-type earliness + ECG | none | First numbers | High |
 
-## 6. Ablation plan
-Remove one at a time and measure warning time, latency, sensitivity, false alarms:
-1. no neuro-dynamics bank · 2. no digital twin · 3. static instead of dynamic graph · 4. hard labels instead of soft ramps · 5. binary head instead of hazard head · 6. no cascade · 7. no patient-baseline normalization.
+## 9. Ablations
+GNM-ODE vs v1.1 backbone · no neuro bank · no SBI prior · no stability margin · binary instead of competing-risks head · hard instead of soft onset labels · no cascade · no ECG · no patient baseline · static vs dynamic coupling.
 
-## 7. Risks
-- **Short TUSZ sessions** cap the hazard head at ~30 min; many seizures have little preictal data. Check data first.
-- **Per-electrode spread labels** depend on TUSZ v2 channel annotations — verify.
-- **ECG** missing in some recordings — body module must degrade gracefully.
-- **Digital twin** is the riskiest scientific bet; if E/I parameters add nothing, report it honestly.
-- **Scope is large.** Build order: 0 → 3 → 1 → H2/H1 → alarm → 2 → H3–H5 → dashboard → tiny model.
+## 10. Risks and build order
+| Risk | Handling |
+|---|---|
+| Neural ODE slow/unstable | 50 Hz latent, fixed-step, short rollouts, SBI-initialised gains, v1.1 fallback |
+| Gain identifiability | 3 gains first; SBC + posterior checks; gated input; report nulls honestly |
+| Noisy Jacobian eigenvalues | Smoothed; one input among several |
+| Short TUSZ preictal data | Data audit sets bins; censoring; long horizons on CHB-MIT/Siena |
+| ECG missing in some files | Missing-modality dropout |
+| Label noise in types | Noise-robust loss; 4-class primary |
+| Leakage | TUSZ-train-only pretraining; dev split for thresholds vs conformal; eval used once |
+| Scope | Build order below |
+
+**Build order:** S0 data audit → front-end + v1.1 backbone + H3 onset + alarm Stage B (first full result) → neuro bank + H1 + Stage A → SBI twin → GNM-ODE backbone + H2 stability + H4 rollout → H5 + ECG → dashboard → distilled student.
+
+## References for positioning
+- Lemoine et al., EEGSurvNet, *Epilepsia* — https://doi.org/10.1002/epi.70101
+- Physics-informed Kuramoto neural ODE on TUSZ (EMBC 2025) — https://pubmed.ncbi.nlm.nih.gov/41336412/
+- HP-GNN, *PLOS One* 2026 — https://journals.plos.org/plosone/article?id=10.1371%2Fjournal.pone.0345470
+- E/I dynamic polynomial network — https://pmc.ncbi.nlm.nih.gov/articles/PMC13258883/
+- Bury et al., deep learning tipping points, *PNAS* 2021 — https://www.pnas.org/doi/10.1073/pnas.2106140118
+- AFC-GCN 2024 — https://pubmed.ncbi.nlm.nih.gov/39269793/
+- Graph-generative GNN, *Sci. Rep.* 2022 — https://www.nature.com/articles/s41598-022-23656-1
+- Hashemi et al., SBI for whole-brain epilepsy models — https://www.medrxiv.org/content/10.1101/2022.06.02.22275860v1.full
+- SBI validity audit for neural mass models (2026) — https://arxiv.org/pdf/2607.24874
+- EEG+ECG fusion for onset detection (2016) — https://pubmed.ncbi.nlm.nih.gov/27057745/
+- TUSZ corpus paper (per-channel annotations) — https://pmc.ncbi.nlm.nih.gov/articles/PMC6246677/
