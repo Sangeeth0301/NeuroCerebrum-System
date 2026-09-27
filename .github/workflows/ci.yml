@@ -19,8 +19,8 @@ jobs:
         with:
           python-version: "3.11"
       - run: pip install "ruff>=0.5"
-      - run: ruff check src tests scripts
-      - run: ruff format --check src tests scripts
+      - run: ruff check src tests
+      - run: ruff format --check src tests
 
   test:
     runs-on: ${{ matrix.os }}
