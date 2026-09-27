@@ -11,7 +11,7 @@ NeuroMech-Warn is a research project on the Temple University Hospital EEG Seizu
 | Phase | Scope | Status |
 |---|---|---|
 | P0 | Project setup and scaffolding | ✅ done |
-| P1 | Data foundation and TUSZ audit | ⏳ waiting for dataset |
+| P1 | Data foundation and TUSZ audit | 🟡 code done; real audit waits for dataset |
 | P2–P12 | Pipeline, models, evaluation, dashboard, deployment, paper | planned |
 
 The full plan is in [DOCS/ROADMAP.md](DOCS/ROADMAP.md).
@@ -65,7 +65,14 @@ Windows without `make`: run the same commands shown in the [Makefile](Makefile) 
 
 ## Data
 
-TUSZ and TUAR are available from the Temple University Neural Engineering Data Consortium after signing their data use agreement. The data is **never** committed to this repository. Download instructions arrive with phase P1 in `DATA.md`.
+TUSZ and TUAR are available from the Temple University Neural Engineering Data Consortium after signing their data use agreement. The data is **never** committed to this repository. See [DATA.md](DATA.md) for access, download and setup.
+
+Try the data pipeline without the dataset:
+
+```bash
+python scripts/00_audit_tusz.py data.dry_run=true
+python scripts/01_make_splits.py data.dry_run=true
+```
 
 ## Repository layout
 
