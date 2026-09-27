@@ -11,8 +11,8 @@ data/**
 outputs/**
 !outputs/**/
 !outputs/**/.gitkeep
-mlruns/
-wandb/
+/mlruns/
+/wandb/
 lightning_logs/
 multirun/
 .hydra/
