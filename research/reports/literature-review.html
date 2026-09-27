@@ -1,0 +1,468 @@
+<title>Seizure Forecasting Literature Review</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  --bg:#F5F7F9; --surface:#FFFFFF; --ink:#16202B; --muted:#5A6676; --rule:#D9E0E7;
+  --accent:#0C7471; --accent-soft:#E2F1F0; --warn:#A8690F; --warn-soft:#FBF1E0;
+  --bad:#B42318; --bad-soft:#FBE9E7; --good:#2F7D32;
+  --display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --body:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0E141B; --surface:#151E28; --ink:#E4EAF0; --muted:#97A3B0; --rule:#26323F;
+    --accent:#45B8B2; --accent-soft:#12302F; --warn:#E3A546; --warn-soft:#33260F;
+    --bad:#F0675D; --bad-soft:#3A1916; --good:#6BC46F;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0E141B; --surface:#151E28; --ink:#E4EAF0; --muted:#97A3B0; --rule:#26323F;
+  --accent:#45B8B2; --accent-soft:#12302F; --warn:#E3A546; --warn-soft:#33260F;
+  --bad:#F0675D; --bad-soft:#3A1916; --good:#6BC46F;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.62;padding-inline:16px;padding-block:0 72px}
+.wrap{max-width:980px;margin:0 auto}
+.prose{max-width:760px}
+h1,h2,h3{font-family:var(--display);line-height:1.15;text-wrap:balance;margin:0}
+h1{font-size:clamp(2.1rem,6vw,3.2rem);font-weight:700;letter-spacing:-.02em}
+h2{font-size:1.55rem;font-weight:700;letter-spacing:-.01em}
+h3{font-size:1.08rem;font-weight:600}
+p{margin:0}
+a{color:var(--accent);text-underline-offset:2px}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.eyebrow{font-family:var(--mono);font-size:.74rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+header{padding-block:52px 24px;display:grid;gap:14px}
+.sub{font-size:1.15rem;color:var(--muted);max-width:66ch}
+.meta{font-family:var(--mono);font-size:.8rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px 18px}
+.finding{background:var(--accent-soft);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:18px 20px;display:grid;gap:10px}
+.finding p.big{font-size:1.14rem}
+.start{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:18px 20px;display:grid;gap:12px}
+.start ol{margin:0;padding-left:1.3em;display:grid;gap:6px}
+.band{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.band .cell{background:var(--surface);border:1px solid var(--rule);border-radius:8px;padding:14px 16px;display:grid;gap:4px;align-content:start}
+.band .k{font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.band .v{font-family:var(--display);font-size:1.5rem;font-weight:700;font-variant-numeric:tabular-nums}
+.band .n{font-size:.88rem;color:var(--muted)}
+nav.toc{display:flex;flex-wrap:wrap;gap:8px;padding-block:6px 4px}
+nav.toc a{font-family:var(--mono);font-size:.78rem;text-decoration:none;border:1px solid var(--rule);background:var(--surface);color:var(--ink);padding:5px 10px;border-radius:999px}
+nav.toc a:hover{border-color:var(--accent);color:var(--accent)}
+section{padding-block:34px;border-top:1px solid var(--rule);display:grid;gap:16px;scroll-margin-top:12px}
+.sec-head{display:grid;gap:6px}
+.code{font-family:var(--mono);font-size:.75rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+ul,ol{margin:0;padding-left:1.2em;display:grid;gap:6px}
+li::marker{color:var(--accent)}
+.table-wrap{overflow-x:auto;border:1px solid var(--rule);border-radius:8px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:.88rem;line-height:1.45}
+th,td{text-align:left;vertical-align:top;padding:9px 12px;border-bottom:1px solid var(--rule)}
+th{font-family:var(--display);font-weight:600;font-size:.82rem;color:var(--muted);background:var(--bg);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td.num,.num{font-family:var(--mono);font-size:.8rem;font-variant-numeric:tabular-nums}
+table.wide{min-width:760px}
+table.mid{min-width:620px}
+.learn{background:var(--surface);border:1px solid var(--rule);border-radius:8px;padding:14px 18px;display:grid;gap:8px}
+.learn .k{font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.pill{display:inline-block;font-family:var(--mono);font-size:.7rem;padding:1px 7px;border-radius:999px;border:1px solid currentColor;white-space:nowrap}
+.pill.j{color:var(--accent)} .pill.c{color:var(--warn)} .pill.p{color:var(--bad)}
+.pill.leak{color:var(--bad)} .pill.fair{color:var(--good)} .pill.part{color:var(--warn)}
+.abs{font-family:var(--mono);font-size:.7rem;color:var(--warn)}
+.tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.filters{display:flex;flex-wrap:wrap;gap:6px}
+.filters button{font-family:var(--mono);font-size:.76rem;border:1px solid var(--rule);background:var(--surface);color:var(--ink);padding:5px 10px;border-radius:999px;cursor:pointer}
+.filters button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+.progress{font-family:var(--mono);font-size:.8rem;color:var(--muted);display:flex;gap:10px;align-items:center}
+.bar{width:140px;height:6px;background:var(--rule);border-radius:999px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);width:0}
+td.chk{width:34px;text-align:center}
+td.chk input{width:16px;height:16px;accent-color:var(--accent);cursor:pointer}
+tr.done td:not(.chk){color:var(--muted)}
+.gap td:first-child{font-weight:600}
+.pit{display:grid;gap:12px}
+.pit article{border-left:3px solid var(--bad);padding:4px 0 4px 14px;display:grid;gap:4px}
+.limits{background:var(--warn-soft);border-radius:8px;padding:14px 18px}
+footer{padding-top:26px;border-top:1px solid var(--rule);font-family:var(--mono);font-size:.76rem;color:var(--muted);display:grid;gap:4px}
+@media (max-width:560px){ body{font-size:16px} section{padding-block:26px} .band .v{font-size:1.3rem} }
+</style>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow">NeuroMech-Warn · literature review · starting point</div>
+  <h1>Fair evaluation shrinks every seizure-forecasting headline</h1>
+  <p class="sub">47 conference and journal papers across six areas: what each did, how, what it achieved, and what is left for our project to do first.</p>
+  <div class="meta"><span>36 journal · 9 conference · 2 preprint</span><span>Dataset focus: TUH EEG Seizure Corpus (TUSZ)</span><span>Local files: research/papers/</span></div>
+</header>
+
+<div class="finding prose">
+  <p class="big"><strong>Main finding:</strong> when tests use new, unseen patients and count whole seizures, almost every impressive number in this field becomes much smaller. On TUSZ, nobody has yet reported honest, alarm-level seizure prediction or causal onset latency.</p>
+  <p>The literature does not lack models. It lacks fair, comparable measurements of <em>time</em>. A project that reports honest numbers together with lead time, onset latency and per-type delay would be a real contribution even without beating an accuracy record.</p>
+</div>
+
+<div style="height:18px"></div>
+<div class="band" aria-label="The fair performance band">
+  <div class="cell"><span class="k">Prediction, fair</span><span class="v">AUC 0.7–0.8</span><span class="n">TUSZ benchmark 0.71–0.75 (segment, validation only)</span></div>
+  <div class="cell"><span class="k">Best warning, unseen pts</span><span class="v">~23 min</span><span class="n">at 0.32 false alarms/h, CHB-MIT, preprint</span></div>
+  <div class="cell"><span class="k">TUSZ onset latency</span><span class="v">7.8–15.8 s</span><span class="n">only patient-independent result (Lee 2022)</span></div>
+  <div class="cell"><span class="k">TUSZ detection</span><span class="v">F1 0.671</span><span class="n">event-level, SeizureTransformer, preprint</span></div>
+  <div class="cell"><span class="k">Seizure type, fair</span><span class="v">wF1 0.65–0.75</span><span class="n">7-class / 4-class, patient-wise (Tang 2022)</span></div>
+</div>
+
+<div style="height:18px"></div>
+<div class="start prose">
+  <h3>How we use this page</h3>
+  <ol>
+    <li>Read the <a href="#baselines">baselines to beat</a> and <a href="#gaps">gaps</a> first. They define what "better" and "novel" mean for us.</li>
+    <li>Study papers topic by topic using the <a href="#index">reading checklist</a>. Tick each paper once you have read the full PDF; your ticks stay in this browser.</li>
+    <li>Keep the <a href="#pitfalls">pitfalls</a> open while reading, so leaky numbers are not mistaken for real results.</li>
+    <li>Only then design the approach, using the <a href="#implications">implications</a> list as the entry checklist.</li>
+  </ol>
+  <p style="font-size:.9rem;color:var(--muted)"><span class="abs">(abs)</span> = number from the abstract only. <span class="pill p">preprint</span> = not peer-reviewed.</p>
+</div>
+
+<nav class="toc" aria-label="Sections">
+  <a href="#index">Reading checklist</a><a href="#prediction">Prediction</a><a href="#detection">Detection &amp; latency</a><a href="#type">Type &amp; spread</a><a href="#neuro">Neuroscience models</a><a href="#fm">Foundation models</a><a href="#body">Body reaction</a><a href="#baselines">Baselines to beat</a><a href="#pitfalls">Pitfalls</a><a href="#gaps">Gaps</a><a href="#implications">Implications</a><a href="#terms">Key terms</a>
+</nav>
+
+<section id="index">
+  <div class="sec-head"><span class="code">All 47 papers</span><h2>Reading checklist</h2></div>
+  <div class="tools">
+    <div class="filters" role="group" aria-label="Filter by topic">
+      <button type="button" data-f="all" aria-pressed="true">All</button>
+      <button type="button" data-f="P" aria-pressed="false">P · Prediction</button>
+      <button type="button" data-f="D" aria-pressed="false">D · Detection</button>
+      <button type="button" data-f="C" aria-pressed="false">C · Type &amp; spread</button>
+      <button type="button" data-f="N" aria-pressed="false">N · Neuroscience</button>
+      <button type="button" data-f="F" aria-pressed="false">F · Foundation models</button>
+      <button type="button" data-f="B" aria-pressed="false">B · Body</button>
+    </div>
+    <div class="progress"><span id="prog">0 / 47 read</span><span class="bar"><i id="progbar"></i></span></div>
+  </div>
+  <div class="table-wrap">
+    <table class="wide" id="papers">
+      <thead><tr><th>Read</th><th>ID</th><th>Authors</th><th>Year</th><th>Venue</th><th>Type</th><th>What it is</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <p style="font-size:.88rem;color:var(--muted)">Each ID links to the original paper. The detailed summary for each is in the project folder at <span class="num">research/papers/&lt;ID&gt;_….md</span>.</p>
+</section>
+
+<section id="prediction">
+  <div class="sec-head"><span class="code">P · 8 papers</span><h2>Prediction on scalp EEG: honest numbers fall from 97% to AUC 0.7</h2></div>
+  <div class="prose" style="display:grid;gap:12px">
+    <p><strong>Kuhlmann 2018</strong> (Kaggle contest on implant EEG) and <strong>Truong 2018</strong> (STFT-CNN, one model per patient) set the rules still used: time-separated test data, whole-seizure scoring with SPH/SOP windows, and a random-predictor comparison. Truong reached 81.2% sensitivity at 0.16 false alarms/h on 13 CHB-MIT patients.</p>
+    <p><strong>Dissanayake 2022</strong>, <strong>Koutsouvelis 2024</strong> and <strong>Meng 2025</strong> report very high numbers under splits that let the test patient into training. Koutsouvelis' famous 76.8 min is when the smoothed output converges, not a real alarm, and its false-alarm rate is 33.6/h per segment.</p>
+    <p>Only <strong>Jemal 2024</strong> and <strong>CG-MambaNet 2026</strong> (preprint) test truly unseen patients. The same CNN drops from 97.4% pooled to AUC 0.69 leave-one-patient-out. <strong>MLSPred-Bench 2025</strong> is the only TUSZ prediction benchmark, with validation segment AUC only, and it swaps the SPH and SOP names.</p>
+  </div>
+  <div class="table-wrap">
+    <table class="wide">
+      <thead><tr><th>Paper</th><th>Data</th><th>Split</th><th>Window (conventional naming)</th><th>Key numbers</th><th>Warning time</th></tr></thead>
+      <tbody>
+        <tr><td>Kuhlmann 2018</td><td>NeuroVista iEEG, 3 pts</td><td><span class="pill part">patient-specific, time-separated</span></td><td>1 h preictal, 10-min clips</td><td class="num">AUC 0.81; −6.7% on held-out <span class="abs">(abs)</span></td><td>Matched time-in-warning</td></tr>
+        <tr><td>Truong 2018</td><td>CHB-MIT 13 pts; Freiburg; Kaggle</td><td><span class="pill part">leave-one-seizure-out</span></td><td>SOP 30 / SPH 5</td><td class="num">CHB-MIT 81.2%, 0.16/h; Freiburg 81.4%, 0.06/h</td><td>5–35 min window</td></tr>
+        <tr><td>Dissanayake 2022</td><td>CHB-MIT 23, Siena 15</td><td><span class="pill leak">pooled CV, leaky</span></td><td>1 h preictal</td><td class="num">Acc 95.38% / 96.05%</td><td>Not reported</td></tr>
+        <tr><td>Jemal 2024</td><td>CHB-MIT 22, Siena 12</td><td><span class="pill fair">true LOPO</span></td><td>1 h preictal, 10-s windows</td><td class="num">Pooled 97.36% → LOPO AUC 0.69 / 0.48; with DA 0.75 / 0.61</td><td>Not reported</td></tr>
+        <tr><td>Koutsouvelis 2024</td><td>CHB-MIT 19</td><td><span class="pill leak">uses future seizures</span></td><td>15–60 min per patient</td><td class="num">Sens 99.31%, AUC 0.99, segment FAR 33.6/h</td><td>"76.8 min" (not an alarm)</td></tr>
+        <tr><td>Meng 2025</td><td>CHB-MIT 13</td><td><span class="pill part">includes test patient</span></td><td>SOP 30 / SPH 5</td><td class="num">90.77%, 0.090/h; multi-pt 84.41%, 0.232/h</td><td>5–35 min window</td></tr>
+        <tr><td><strong>MLSPred-Bench 2025</strong></td><td><strong>TUSZ</strong>, 287 pts</td><td><span class="pill fair">patient-disjoint</span> validation only</td><td>Preictal 2–30 min × gap 1–5 min</td><td class="num">Val AUC: ResNet 0.709, RF 0.748; 15-min 0.81–0.84</td><td>Not reported</td></tr>
+        <tr><td>CG-MambaNet 2026 <span class="pill p">preprint</span></td><td>CHB-MIT 22, Siena 6</td><td><span class="pill fair">LOPO × 5 seeds</span></td><td>30-min preictal</td><td class="num">AUC 0.815 / 0.710; event FA 0.32 / 0.55 per h</td><td class="num">23.4 / 21.7 min</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="learn prose"><span class="k">What we learn</span><p>Changing the split from pooled to leave-one-patient-out costs about 35 accuracy points. Only ~4% of prediction papers validate cross-patient <span class="abs">(abs)</span>. There is no agreed definition of "warning time". TUSZ sessions are short, so fewer seizures qualify as the horizon grows (1,282 seizures at a 3-min horizon, fewer at 35 min).</p></div>
+</section>
+
+<section id="detection">
+  <div class="sec-head"><span class="code">D · 7 papers</span><h2>Detection and latency: accuracy is measured, "how early" is not</h2></div>
+  <div class="prose" style="display:grid;gap:12px">
+    <p><strong>Shah 2018</strong> introduced TUSZ. <strong>Saab 2020</strong> showed short clips hurt (F1 0.49 at 12 s vs 0.76 at 60 s). <strong>Lee 2022</strong> is the only patient-independent latency study on TUSZ: a 4-s window streamed every second through 15 models, with mean onset latency 7.76–15.83 s. It also shows scoring decides everything: the same model gets 0.75 sensitivity at 47 FA/24h (OVLP) but 0.33 at 1.03 FA/24h (TAES).</p>
+    <p><strong>Xu 2023</strong> uses soft labels on onset-crossing windows plus evidence accumulation: 2.3 s latency, but one model per patient. <strong>SzCORE</strong> is the scoring standard, with −30/+60 s tolerance and <em>no latency metric</em>. <strong>SeizureTransformer</strong> (preprint) holds the best TUSZ event F1, 0.671. <strong>Zabihi 2026</strong> is an honest CatBoost benchmark: sensitivity 0.75 at 0.68 FA/h; its "0 s latency" is a dilation artifact.</p>
+  </div>
+  <div class="table-wrap">
+    <table class="wide">
+      <thead><tr><th>Paper</th><th>Data / split</th><th>Window, model</th><th>Scoring</th><th>Sens.</th><th>False alarms</th><th>F1</th><th>Latency</th></tr></thead>
+      <tbody>
+        <tr><td>Shah 2018</td><td>TUSZ v1.2.0, 265/50 pts</td><td>Corpus only</td><td>–</td><td>–</td><td>–</td><td>–</td><td>–</td></tr>
+        <tr><td>Saab 2020</td><td>Stanford + TUSZ v1.4</td><td>12/60 s clips, CNN</td><td>Clip AUROC, F1</td><td>–</td><td>Per clip</td><td class="num">0.49–0.77</td><td>–</td></tr>
+        <tr><td><strong>Lee 2022</strong></td><td>TUSZ v1.5.2, 26 dev pts</td><td>4 s / 1 s stream, CNN-LSTM</td><td>OVLP / TAES</td><td class="num">0.75 / 0.33</td><td class="num">47.06 / 1.03 per 24h</td><td>–</td><td class="num"><strong>7.76–15.83 s</strong></td></tr>
+        <tr><td>Xu 2023</td><td>CHB-MIT, SWEC; <span class="pill part">patient-specific</span></td><td>STFT + 3D-CNN, soft labels</td><td>Per seizure</td><td class="num">94/99</td><td class="num">0.08/h</td><td>–</td><td class="num">2.3 / 4.7 s</td></tr>
+        <tr><td>SzCORE, Dan 2025</td><td>Private challenge data</td><td>28–30 algorithms</td><td>Event, −30/+60 s</td><td class="num">37%</td><td>FP/day</td><td class="num">43% or 32% <span class="abs">(abs)</span></td><td>Not defined</td></tr>
+        <tr><td>SeizureTransformer <span class="pill p">preprint</span></td><td>TUSZ v2.0.3 eval</td><td>60 s, U-Net + transformer</td><td>SzCORE event</td><td class="num">0.717</td><td>–</td><td class="num"><strong>0.671</strong></td><td>Not reported</td></tr>
+        <tr><td>Zabihi 2026</td><td>TUSZ v2.0.3 official split</td><td>60/15 s, CatBoost</td><td>≥10 s overlap</td><td class="num">0.749</td><td class="num">0.68/h</td><td class="num">macro 0.81</td><td>"0 s" artifact</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="learn prose"><span class="k">What we learn</span><p>SzCORE scores a 25-s-late alarm the same as a 1-s alarm. The only fair TUSZ latency (~8–16 s) is on an old version and a small test set. 2–5 s results are patient-specific. Offline tricks (long windows, future context, dilation) fake zero latency. Short focal seizures are the hardest, and no paper reports latency per seizure type.</p></div>
+</section>
+
+<section id="type">
+  <div class="sec-head"><span class="code">C · 8 papers</span><h2>Seizure type and spread: fair type scores near 0.65–0.75, spread shown only in pictures</h2></div>
+  <div class="prose" style="display:grid;gap:12px">
+    <p><strong>Tang 2022 (ICLR)</strong> is the reference: a graph neural network over 19 electrodes with self-supervised pretraining, patient-wise on TUSZ, 4 merged classes (focal, generalized, absence, tonic). wF1 0.749 (4-class), 0.650 (7-class). A neurologist found 27 of 32 "generalized" errors were really focal, so TUSZ labels are noisy. <strong>SeizureNet</strong> proves the leakage effect: wF1 0.95–0.98 seizure-wise vs 0.62 patient-wise.</p>
+    <p>For spread: <strong>SZTrack</strong> tracks per-channel seizure activity over time (hemisphere + lobe correct in 21/34 patients). <strong>DeepSIF</strong> trains on neural-mass simulations and localizes onset within 7–11 mm, but needs 76-channel EEG. <strong>Neural fragility</strong> predicts surgical outcome from iEEG with AUC 0.88.</p>
+  </div>
+  <div class="table-wrap">
+    <table class="wide">
+      <thead><tr><th>Paper</th><th>Data</th><th>Split</th><th>Model</th><th>Headline result</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Tang 2022</strong></td><td>TUSZ v1.5.2, 19 ch</td><td><span class="pill fair">patient-wise</span></td><td>DCRNN graph + self-supervision</td><td class="num">4-class wF1 0.749; 7-class 0.650; 25.4% focal localized</td></tr>
+        <tr><td>SeizureNet 2020</td><td>TUSZ, 7 types</td><td><span class="pill leak">seizure-wise</span> and patient-wise</td><td>Multi-spectral CNN ensemble</td><td class="num">0.95–0.98 leaky vs 0.62 fair</td></tr>
+        <tr><td>Ahmedt-Aristizabal 2020</td><td>TUSZ v1.4, 7 types</td><td><span class="pill leak">random windows</span></td><td>LSTM + memory network</td><td class="num">wF1 0.945 (0.63–0.64 fair)</td></tr>
+        <tr><td>Raghu 2020</td><td>TUSZ, 8 classes</td><td>Not verified</td><td>ImageNet CNNs + SVM</td><td class="num">Acc 82.85% / 88.30% <span class="abs">(abs)</span></td></tr>
+        <tr><td>SZTrack 2022</td><td>34 pts + 15 external</td><td><span class="pill fair">LOPO + external</span></td><td>Channel-wise CNN + RNN</td><td class="num">Lateralization 0.826; 21/34 hemisphere+lobe</td></tr>
+        <tr><td>DeepSIF 2022</td><td>20 pts, 76-ch interictal</td><td>Simulation-trained</td><td>NMM simulation → DNN</td><td class="num">SOZ error 7.45 ± 8.91 mm</td></tr>
+        <tr><td>Ictal DeepSIF 2024</td><td>33 pts, 76-ch ictal</td><td>Simulation-trained</td><td>Jansen–Rit ictal sim → DNN</td><td class="num">SOZ distance 10.89 ± 10.14 mm</td></tr>
+        <tr><td>Neural fragility 2021</td><td>91 pts, iEEG</td><td>Patient-level</td><td>Linear time-varying network</td><td class="num">Outcome AUC 0.88</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="learn prose"><span class="k">What we learn</span><p>Leakage inflates type scores by ~0.33 wF1. Classes with two patients cannot be evaluated fairly, so the 4-class merge is the fair standard. No paper combines type and spread, and none measures spread accuracy with numbers. DeepSIF has not been tested on 19-channel clinical EEG like TUSZ.</p></div>
+</section>
+
+<section id="neuro">
+  <div class="sec-head"><span class="code">N · 9 papers</span><h2>Neuroscience models: real warning signals live mostly in slow cycles</h2></div>
+  <div class="prose" style="display:grid;gap:12px">
+    <p>The strongest forecasting evidence comes from months of implant recordings. <strong>Baud 2018</strong>: spike rates follow 20–30 day cycles and seizures cluster on the rising phase. <strong>Proix 2021</strong>: cycle-based daily forecasts, AUC 0.74 / 0.70 in 175 patients. <strong>Maturana 2020</strong>: critical slowing down gives 77% sensitivity with 91% of time at low risk. <strong>Chang 2018</strong> is the counterpoint: autocorrelation rose before seizures in only 4/12 patients and fell in 4/12.</p>
+    <p>For the E/I digital twin: <strong>Wendling 2002</strong> and <strong>Jirsa 2014</strong> give the models. <strong>Karoly 2018</strong> tracked Jansen–Rit parameters over 3,010 seizures, but only during seizures. <strong>Duma 2025</strong>, the only scalp study, found the aperiodic exponent rising ~13 min before seizures, a shift toward <em>inhibition</em>, not excitation.</p>
+  </div>
+  <div class="table-wrap">
+    <table class="wide">
+      <thead><tr><th>Paper</th><th>Recording</th><th>Patients / duration</th><th>Marker / model</th><th>Pseudo-prospective?</th><th>Headline</th></tr></thead>
+      <tbody>
+        <tr><td>Maturana 2020</td><td>iEEG</td><td>13 pts, 185–767 days</td><td>Critical slowing + cycles</td><td>Yes</td><td class="num">Sens 77 ± 8%, 91% low-risk time</td></tr>
+        <tr><td>Chang 2018</td><td>Slices, rats, iEEG</td><td>12 humans</td><td>Resilience / CSD</td><td>No</td><td class="num">Up in 4/12, down in 4/12</td></tr>
+        <tr><td>Baud 2018</td><td>RNS implant</td><td>37 pts, 2.3 y</td><td>Circadian + multi-day cycles</td><td>No</td><td class="num">Phase-locked 13/14; RR 6.8</td></tr>
+        <tr><td>Proix 2021</td><td>RNS implant</td><td>18 + 157 pts</td><td>Point process on cycle phases</td><td>Yes</td><td class="num">24-h AUC 0.74 / 0.70</td></tr>
+        <tr><td>Khambhati 2024</td><td>RNS hippocampal</td><td>15 pts</td><td>90-s connectivity</td><td>Unclear</td><td>"As accurate as" cycles <span class="abs">(abs)</span></td></tr>
+        <tr><td><strong>Duma 2025</strong></td><td><strong>Scalp 128-ch</strong></td><td>20 pts, 29 sz</td><td>Aperiodic exponent (E/I)</td><td>No</td><td class="num">Exponent rises preictally, t = 6.94</td></tr>
+        <tr><td>Karoly 2018</td><td>iEEG</td><td>12 pts, 3,010 sz</td><td>Jansen–Rit + Kalman</td><td>No (ictal)</td><td>Stereotyped pathways</td></tr>
+        <tr><td>Aarabi &amp; He 2014</td><td>iEEG</td><td>21 pts</td><td>12-parameter NMM</td><td>Not evident</td><td class="num">87–93% sens, 0.15–0.2/h <span class="abs">(abs)</span></td></tr>
+        <tr><td>Wendling 2002; Jirsa 2014</td><td>SEEG; in vitro</td><td>–</td><td>Wendling NMM; Epileptor</td><td>–</td><td>Mechanism only</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="learn prose"><span class="k">What we learn</span><p>Honest biomarker forecasting reaches AUC ~0.70–0.80, mostly from day-to-week cycles that TUSZ is too short to capture. On TUSZ we can only test minutes-scale markers. Our "excitation rises" hypothesis is not what the one scalp study found, so both directions must be allowed. Sleep and artifacts also move these markers and must be controlled.</p></div>
+</section>
+
+<section id="fm">
+  <div class="sec-head"><span class="code">F · 7 papers</span><h2>Foundation models: small gains for seizures, and a hidden TUSZ overlap</h2></div>
+  <div class="prose"><p>BENDR → BIOT → LaBraM → EEGPT → CBraMod share one benchmark (TUAB, TUEV, CHB-MIT with 2 test patients). None reports TUSZ seizure results. LaBraM put 1,138 hours of TUSZ into pretraining; BENDR and CBraMod used the whole TUH archive. EEGPT used no TUH data, so it is a leakage-free control. Independent benchmarks (EEG-Bench, EEG-FM-Compass) find specialist models remain competitive.</p></div>
+  <div class="table-wrap">
+    <table class="wide">
+      <thead><tr><th>Model</th><th>Params</th><th>TUH in pretraining?</th><th>TUAB BAcc / AUROC</th><th>TUEV BAcc / wF1</th><th>CHB-MIT BAcc / AUPRC / AUROC</th></tr></thead>
+      <tbody>
+        <tr><td>Best supervised</td><td class="num">~3.5M</td><td>–</td><td class="num">0.797 / 0.871</td><td class="num">0.438 / 0.702</td><td class="num">0.639 / 0.248 / 0.866</td></tr>
+        <tr><td>BIOT</td><td class="num">3.2M</td><td>TUAB/TUEV train</td><td class="num">0.796 / 0.882</td><td class="num">0.528 / 0.749</td><td class="num">0.707 / 0.328 / 0.876</td></tr>
+        <tr><td>LaBraM-Base</td><td class="num">5.8M</td><td><strong>Yes, incl. TUSZ</strong></td><td class="num">0.814 / 0.902</td><td class="num">0.641 / 0.831</td><td class="num">0.708 / 0.329 / 0.868</td></tr>
+        <tr><td>EEGPT</td><td class="num">25M</td><td><strong>No</strong></td><td class="num">0.798 / 0.872</td><td class="num">0.623 / 0.819</td><td>–</td></tr>
+        <tr><td><strong>CBraMod</strong></td><td class="num">4.0M</td><td><strong>Yes, all TUEG</strong></td><td class="num"><strong>0.829 / 0.923</strong></td><td class="num"><strong>0.667 / 0.834</strong></td><td class="num"><strong>0.740 / 0.369 / 0.889</strong></td></tr>
+        <tr><td>BENDR</td><td>–</td><td>Yes, all TUEG</td><td>No TUH downstream</td><td>–</td><td>–</td></tr>
+        <tr><td>EEG-Bench seizure task</td><td>–</td><td>–</td><td class="num">SVM 0.572 vs LaBraM 0.588</td><td>–</td><td>–</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="learn prose"><span class="k">What we learn</span><p>For seizures, foundation models add about +0.02 AUROC on CHB-MIT, and AUPRC stays below 0.37. They use 4–30-s windows and window metrics only: no latency, no false alarms per hour. Any TUH-pretrained checkpoint has likely already seen TUSZ eval-patient EEG.</p></div>
+</section>
+
+<section id="body">
+  <div class="sec-head"><span class="code">B · 8 papers</span><h2>Body reaction: the heart often reacts seconds before scalp EEG, but not reliably</h2></div>
+  <div class="prose"><p>Heart rate rises in ~87% of focal seizures, on average 8–14 s <em>before</em> scalp-EEG onset, but the spread (±15–22 s) is as large as the mean, and it depends on side (right temporal before, left after). Wearable ECG and wrist devices detect seizures 28–38 s <em>after</em> onset, so they are detectors, not predictors. Heart-rate cycles from a smartwatch can forecast risk hours ahead. No paper uses the ECG channel inside TUSZ.</p></div>
+  <div class="table-wrap">
+    <table class="wide">
+      <thead><tr><th>Paper</th><th>Signals</th><th>Patients / seizures</th><th>Key numbers</th><th>Timing vs EEG</th></tr></thead>
+      <tbody>
+        <tr><td>Leutmezer 2003</td><td>ECG + scalp EEG</td><td>58 / 145 focal</td><td class="num">Tachycardia 86.9% <span class="abs">(abs)</span></td><td class="num">13.7 s / 8.2 s before <span class="abs">(abs)</span></td></tr>
+        <tr><td>Kato 2014</td><td>ECG + video-EEG</td><td>21 / 77 mTLE</td><td class="num">HR rise 29/29 right, 42/48 left <span class="abs">(abs)</span></td><td class="num">−11.5 s right, +9.2 s left</td></tr>
+        <tr><td>Jeppesen 2019</td><td>Wearable ECG, HRV</td><td>100 / 126</td><td class="num">Se 93.1%, 1.0 FA/24h, responders only <span class="abs">(abs)</span></td><td class="num">30 s after</td></tr>
+        <tr><td>Jeppesen 2025</td><td>ECG patch → phone</td><td>17 eligible / 42</td><td class="num">Se 90.5%; FBTC 100%; focal 82.6%; 1.1 FA/24h</td><td class="num">28 s after</td></tr>
+        <tr><td>Regalia 2019 / Onorati 2021</td><td>Wrist EDA + accelerometer</td><td>152 / 66 convulsive</td><td class="num">Se 0.92–0.94; 0.57–1.26 FA/24h</td><td class="num">37.5 s after</td></tr>
+        <tr><td>Stirling 2021</td><td>Fitbit HR, sleep, steps</td><td>11 pts</td><td class="num">Above chance 11/11 hourly <span class="abs">(abs)</span></td><td>Hours ahead</td></tr>
+        <tr><td>Swinnen 2026</td><td>Behind-ear EEG + ECG</td><td>192 / 616 focal</td><td class="num">Se 0.73, precision 0.004 <span class="abs">(abs)</span></td><td>–</td></tr>
+        <tr><td>Karácsony 2022</td><td>IR + depth video</td><td>26 / 115</td><td class="num">Frontal vs temporal F1 0.833, AUC 0.89</td><td>2-s clips</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="baselines">
+  <div class="sec-head"><span class="code">Targets</span><h2>Baselines to beat for each objective</h2></div>
+  <div class="table-wrap">
+    <table class="wide">
+      <thead><tr><th>Objective</th><th>Best fair baseline</th><th>Exact number</th><th>Comparable?</th><th>Stronger, non-comparable reference</th></tr></thead>
+      <tbody>
+        <tr><td><strong>1. Forecast earlier</strong></td><td>MLSPred-Bench (TUSZ)</td><td class="num">Val AUC 0.709 (ResNet), 0.748 (RF); 15-min 0.81–0.84</td><td><span class="pill part">TUSZ, segment only</span></td><td>CG-MambaNet AUC 0.815, 0.32 FA/h, 23.4 min <span class="pill p">preprint</span>; Jemal AUC 0.69 → 0.75</td></tr>
+        <tr><td>1b. Classic protocol</td><td>Truong 2018 STFT-CNN</td><td class="num">81.2%, 0.16 FA/h (CHB-MIT)</td><td><span class="pill leak">patient-specific</span></td><td>Meng 2025 90.77%, 0.090 FA/h</td></tr>
+        <tr><td><strong>2. Detect earlier</strong></td><td>Lee 2022 streaming CNN-LSTM</td><td class="num">7.76 s best mean latency (7.76–15.83 s)</td><td><span class="pill part">TUSZ v1.5.2, 26 pts</span></td><td>Xu 2023 2.3 s (patient-specific)</td></tr>
+        <tr><td>2b. Keep accuracy</td><td>SeizureTransformer; Zabihi 2026</td><td class="num">Event F1 0.671; sens 0.749 at 0.68 FA/h</td><td><span class="pill fair">TUSZ v2.0.3 eval</span></td><td>Cross-site challenge F1 0.32–0.43</td></tr>
+        <tr><td><strong>3. Seizure type</strong></td><td>Tang 2022</td><td class="num">4-class wF1 0.746–0.749; 7-class 0.650</td><td><span class="pill fair">TUSZ, patient-wise</span></td><td>Leaky: 0.945–0.98</td></tr>
+        <tr><td><strong>4. Spread</strong></td><td>SZTrack; Tang 2022</td><td class="num">21/34 hemisphere+lobe; 25.4% focal localized</td><td><span class="pill part">partly</span></td><td>DeepSIF 10.89 mm (76-ch); fragility AUC 0.88 (iEEG)</td></tr>
+        <tr><td><strong>5. Body reaction</strong></td><td>Leutmezer 2003; Kato 2014</td><td class="num">HR rise 8–14 s before EEG <span class="abs">(abs)</span></td><td><span class="pill leak">no TUSZ baseline</span></td><td>Jeppesen 2025 90.5%, 1.1 FA/24h, 28 s</td></tr>
+        <tr><td><strong>6. E/I digital twin</strong></td><td>Aarabi &amp; He 2014; Duma 2025</td><td class="num">87–93% sens (iEEG, abs); scalp exponent rise</td><td><span class="pill leak">no scalp baseline</span></td><td>Proix AUC 0.70–0.74; Maturana 77%</td></tr>
+        <tr><td><strong>7. Visualization</strong></td><td>None quantitative</td><td>Qualitative maps only</td><td>–</td><td>–</td></tr>
+        <tr><td>Backbone choice</td><td>CBraMod vs supervised</td><td class="num">AUROC 0.889 vs 0.866 (CHB-MIT)</td><td><span class="pill part">not TUSZ</span></td><td>EEG-Bench: LaBraM 0.588 vs SVM 0.572</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="pitfalls">
+  <div class="sec-head"><span class="code">Watch out</span><h2>Common pitfalls that inflate or confuse results</h2></div>
+  <div class="pit prose">
+    <article><h3>Patient leakage</h3><p>Pooled or segment-shuffled splits add ~35 accuracy points in prediction and ~0.33 wF1 in type classification. "Subject-independent" and "patient-independent" can still include the test patient. Leave-one-seizure-out trains on future seizures. Foundation models pretrained on TUH have likely seen TUSZ eval EEG.</p></article>
+    <article><h3>Scoring differences</h3><p>Segment vs event false alarms differ by more than 300× (112.4/h vs 0.32/h). OVLP vs TAES changes sensitivity from 0.75 to 0.33. SzCORE's tolerance hides lateness. Dilation fakes "0 s" latency. MLSPred-Bench swaps SPH and SOP names.</p></article>
+    <article><h3>Dataset versions and label noise</h3><p>TUSZ v1.2.0, v1.4, v1.5.2 and v2.0.3 differ. 27 of 32 checked "generalized" errors were really focal. Preictal windows can include the previous seizure's recovery if no buffer is set.</p></article>
+    <article><h3>Abstract-only, preprint and inconsistent numbers</h3><p>Several numbers conflict between versions (challenge F1 43% vs 32%; MLSPred seizure counts; CG-MambaNet tables). Always cite the PDF tables.</p></article>
+    <article><h3>Small test sets</h3><p>Foundation-model CHB-MIT benchmarks use 2 test patients. Per-patient AUCs range 0.29–0.96 in Jemal. Report confidence intervals across patients.</p></article>
+  </div>
+</section>
+
+<section id="gaps">
+  <div class="sec-head"><span class="code">Our opening</span><h2>Gaps NeuroMech-Warn can fill</h2></div>
+  <div class="table-wrap">
+    <table class="wide gap">
+      <thead><tr><th>Gap</th><th>Evidence it is open</th><th>Objective</th></tr></thead>
+      <tbody>
+        <tr><td>No test-set, event-level, patient-independent prediction on TUSZ</td><td>MLSPred-Bench reports validation segment AUC only (Parani et al. follow-ups not yet checked)</td><td class="num">1</td></tr>
+        <tr><td>No causal onset latency with SzCORE F1 on TUSZ v2.x</td><td>Lee 2022 is v1.5.2 with 26 patients; SzCORE has no latency metric</td><td class="num">2</td></tr>
+        <tr><td>No patient-independent soft-label / evidence-accumulation early detection on TUSZ</td><td>Xu 2023 is patient-specific</td><td class="num">2</td></tr>
+        <tr><td>No latency or prediction results per seizure type</td><td>Zabihi detects 33% of short focal seizures without stratifying</td><td class="num">1–3</td></tr>
+        <tr><td>No joint type + spread model; no numerical spread metric</td><td>All papers validate onset location only</td><td class="num">3–4, 7</td></tr>
+        <tr><td>No source imaging tested on 19-channel TUSZ</td><td>DeepSIF used 76-channel EEG</td><td class="num">4, 7</td></tr>
+        <tr><td>No use of the TUSZ ECG channel; no type-to-heart-rate map</td><td>None found; channel availability unverified</td><td class="num">5</td></tr>
+        <tr><td>No NMM E/I tracking on preictal scalp EEG for forecasting</td><td>Karoly is ictal iEEG; Duma found inhibition shift, no prediction metric</td><td class="num">6</td></tr>
+        <tr><td>No foundation-model results on TUSZ forecasting, latency or type</td><td>All use TUAB/TUEV/CHB-MIT windows</td><td class="num">Backbone</td></tr>
+        <tr><td>No standard warning-time definition with FA/h</td><td>Each paper defines it differently</td><td class="num">1</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="limits prose"><strong>Honest limits.</strong> TUSZ cannot test the multi-day cycles that drive most validated forecasting skill, so "earlier" on TUSZ means minutes, not days. There is no human evidence yet that earlier alarms improve outcomes; it is an engineering goal.</p>
+</section>
+
+<section id="implications">
+  <div class="sec-head"><span class="code">Entry checklist for the approach</span><h2>Implications for choosing our approach</h2></div>
+  <ol class="prose">
+    <li>Fix the protocol before choosing models: official TUSZ v2.0.x split, thresholds frozen on dev, SzCORE event metrics, conventional SPH/SOP naming, interictal and postictal buffers, and a chance or surrogate test.</li>
+    <li>Define latency and warning time causally, and report distributions (median/IQR, % detected within 5 s and 10 s), latency vs false alarms per day, and results per seizure type.</li>
+    <li>Include cheap strong baselines: RF/CatBoost on features and a Truong-style STFT-CNN, next to any deep model.</li>
+    <li>If a foundation model is used, compare with a random-initialized copy and a leakage-free control (EEGPT), and check TUH patient overlap.</li>
+    <li>Treat alarm post-processing (k-of-n, persistence, refractory period, accumulation) as a tuned, reported part of the system.</li>
+    <li>For type and spread, use patient-wise 4-class labels and design a numerical spread metric from TUSZ channel annotations.</li>
+    <li>For E/I and body modules, allow both E/I directions, control for sleep and artifacts, and first check ECG availability in TUSZ.</li>
+    <li>Add at least one external dataset (Siena or CHB-MIT) because of the large cross-site gap.</li>
+  </ol>
+</section>
+
+<section id="terms">
+  <div class="sec-head"><span class="code">Glossary</span><h2>Key terms in plain words</h2></div>
+  <div class="table-wrap">
+    <table class="mid">
+      <thead><tr><th>Term</th><th>Simple meaning</th></tr></thead>
+      <tbody>
+        <tr><td>Prediction / forecasting</td><td>Warning before the seizure starts (minutes to days ahead).</td></tr>
+        <tr><td>Detection</td><td>Recognizing a seizure after it has started; "early detection" means in as few seconds as possible.</td></tr>
+        <tr><td>Onset latency</td><td>Seconds from the expert-marked seizure start to the first alarm (not computer processing time).</td></tr>
+        <tr><td>Preictal / interictal / ictal / postictal</td><td>Before a seizure / far from seizures / during / just after.</td></tr>
+        <tr><td>SPH</td><td>Seizure prediction horizon: the gap between the alarm and the window in which the seizure is expected.</td></tr>
+        <tr><td>SOP</td><td>Seizure occurrence period: the window in which the seizure must happen for the alarm to count.</td></tr>
+        <tr><td>Patient-independent / LOPO</td><td>Test patients are never used in training. The fair setting.</td></tr>
+        <tr><td>Pooled / segment-shuffled split</td><td>Windows from the same patient in both training and test. Causes leakage.</td></tr>
+        <tr><td>Segment vs event metrics</td><td>Scoring small windows vs scoring whole seizures and alarms. Only event metrics describe a real alarm system.</td></tr>
+        <tr><td>FA/h, FA/24h</td><td>False alarms per hour or per day.</td></tr>
+        <tr><td>Causal model</td><td>Uses only past and present EEG, so it can run live.</td></tr>
+        <tr><td>wF1</td><td>F1 averaged over classes, weighted by class size.</td></tr>
+        <tr><td>AUROC / AUPRC</td><td>Threshold-free scores; 1.0 perfect, 0.5 chance for AUROC.</td></tr>
+        <tr><td>SOZ</td><td>Seizure onset zone: where the seizure starts.</td></tr>
+        <tr><td>NMM</td><td>Neural mass model (Jansen–Rit, Wendling): a small model of excitatory and inhibitory populations.</td></tr>
+        <tr><td>CSD</td><td>Critical slowing down: slower recovery before a sudden change, so variance and autocorrelation rise.</td></tr>
+        <tr><td>Foundation model</td><td>A large network pretrained on thousands of hours of unlabeled EEG, then fine-tuned.</td></tr>
+        <tr><td>TUSZ / TUEG / TUAB / TUEV</td><td>Temple University datasets: seizure corpus / whole archive / abnormal vs normal / EEG events.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<footer>
+  <span>NeuroMech-Warn · literature review v1 · 47 papers</span>
+  <span>Full per-paper summaries: research/papers/ · topic notes: research/research_notes/</span>
+</footer>
+</div>
+
+<script>
+(function(){
+  var P=[
+  ["P","P_2018_Kuhlmann","Kuhlmann, Karoly, Freestone, Brinkmann et al.","2018","Brain","j","Crowd-sourced iEEG prediction; evaluation standard","https://academic.oup.com/brain/article/141/9/2619/5066003"],
+  ["P","P_2018_Truong","Truong, Nguyen, Kuhlmann, … Kavehei","2018","Neural Networks","j","STFT-CNN patient-specific prediction","https://arxiv.org/abs/1707.01976"],
+  ["P","P_2022_Dissanayake","Dissanayake, Fernando, Denman, Sridharan, Fookes","2022","IEEE JBHI","j","GNN \"subject-independent\" prediction (pooled CV)","https://doi.org/10.1109/JBHI.2021.3100297"],
+  ["P","P_2024_Jemal","Jemal, Abou-Abbas, Henni, Mitiche, Mezghani","2024","Front. Neuroinform.","j","Pooled vs LOPO vs domain adaptation","https://doi.org/10.3389/fninf.2024.1303380"],
+  ["P","P_2024_Koutsouvelis","Koutsouvelis, Chybowski, Gonzalez-Sulser, Abdullateef, Escudero","2024","J. Neural Eng.","j","Per-patient optimal preictal period","https://iopscience.iop.org/article/10.1088/1741-2552/ad9ad0"],
+  ["P","P_2025_Meng","Meng, Zhou, Zhang, Xie","2025","iScience","j","3D-SERESNet, event-level, multi-patient","https://pmc.ncbi.nlm.nih.gov/articles/PMC12723167/"],
+  ["P","P_2025_Mohammad","Mohammad, Saeed","2025","MethodsX","j","Only TUSZ prediction benchmark (MLSPred-Bench)","https://pmc.ncbi.nlm.nih.gov/articles/PMC12423417/"],
+  ["P","P_2026_Chen","Chen, Wu, Huang, … Ren","2026","arXiv 2606.08226","p","CG-MambaNet, LOPO, event-level lead time","https://arxiv.org/abs/2606.08226"],
+  ["D","D_2018_Shah","Shah, von Weltin, Lopez, … Obeid, Picone","2018","Front. Neuroinform.","j","TUSZ corpus paper","https://www.frontiersin.org/journals/neuroinformatics/articles/10.3389/fninf.2018.00083/full"],
+  ["D","D_2020_Saab","Saab, Dunnmon, Ré, Rubin, Lee-Messer","2020","npj Digit. Med.","j","Weak supervision; 12 s vs 60 s clips","https://www.nature.com/articles/s41746-020-0264-0"],
+  ["D","D_2022_Lee","Lee, Jeong, Kim, Yang, Kang, Choi","2022","CHIL (PMLR 174)","c","Real-time TUSZ detection; onset latency","https://proceedings.mlr.press/v174/lee22a/lee22a.pdf"],
+  ["D","D_2023_Xu","Xu, Yang, Ming, Wang, Sawan","2023","Expert Syst. Appl.","j","Soft labels + accumulative alarm; short latency","https://arxiv.org/abs/2301.03465"],
+  ["D","D_2025_Dan","Dan, Pale, … Ryvlin","2025","Epilepsia","j","SzCORE scoring standard; 2025 challenge","https://onlinelibrary.wiley.com/doi/10.1111/epi.18113"],
+  ["D","D_2025_Wu","Wu, Zhao, Yener","2025","arXiv 2504.00336","p","SeizureTransformer; best TUSZ event F1","https://arxiv.org/abs/2504.00336"],
+  ["D","D_2026_Zabihi","Zabihi, Gilmore, Ding, Rosenthal","2026","Sci. Rep.","j","Transparent TUSZ benchmark; CatBoost","https://www.nature.com/articles/s41598-026-41358-w"],
+  ["C","C_2020_AhmedtAristizabal","Ahmedt-Aristizabal, Fernando, Denman, Petersson, Aburn, Fookes","2020","IEEE EMBC","c","Memory-network type classification (leaky split)","https://doi.org/10.1109/embc44109.2020.9175641"],
+  ["C","C_2020_Asif","Asif, Roy, Tang, Harrer","2020","MICCAI workshop","c","SeizureNet; seizure-wise vs patient-wise","https://arxiv.org/abs/1903.03232"],
+  ["C","C_2020_Raghu","Raghu, Sriraam, Temel, Rao, Kubben","2020","Neural Networks","j","ImageNet-CNN transfer for type (abs)","https://www.sciencedirect.com/science/article/abs/pii/S0893608020300198"],
+  ["C","C_2021_Li","Li, Huynh, … Sarma","2021","Nature Neuroscience","j","Neural fragility SOZ marker (iEEG)","https://pmc.ncbi.nlm.nih.gov/articles/PMC8547387/"],
+  ["C","C_2022_Craley","Craley, Jouny, Johnson, … Venkataraman","2022","PLoS ONE","j","SZTrack: spread tracking + onset localization","https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0264537"],
+  ["C","C_2022_Sun_PNAS","Sun, Sohrabpour, Worrell, He","2022","PNAS","j","DeepSIF: NMM-trained source imaging","https://www.pnas.org/doi/10.1073/pnas.2201128119"],
+  ["C","C_2022_Tang","Tang, Dunnmon, Saab, … Lee-Messer","2022","ICLR","c","Self-supervised GNN; type + localization","https://arxiv.org/abs/2104.08336"],
+  ["C","C_2024_Sun_AdvSci","Sun, Sohrabpour, Joseph, Worrell, He","2024","Advanced Science","j","Ictal DeepSIF source imaging","https://advanced.onlinelibrary.wiley.com/doi/10.1002/advs.202405246"],
+  ["N","N_2014_Aarabi_He","Aarabi, He","2014","Clin. Neurophysiol.","j","NMM-parameter prediction on iEEG (abs)","https://pubmed.ncbi.nlm.nih.gov/24374087/"],
+  ["N","N_2018_Baud","Baud, Kleen, … Rao","2018","Nat. Commun.","j","Multi-day seizure-risk cycles","https://doi.org/10.1038/s41467-017-02577-y"],
+  ["N","N_2018_Chang","Chang, Kudlacek, Hlinka, … Jiruska","2018","Nature Neuroscience","j","Loss of resilience / critical slowing","https://doi.org/10.1038/s41593-018-0278-y"],
+  ["N","N_2018_Karoly","Karoly, Kuhlmann, Soudry, Grayden, Cook, Freestone","2018","PLoS Comput. Biol.","j","Jansen–Rit parameter tracking (Kalman)","https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1006403"],
+  ["N","N_2020_Maturana","Maturana, Meisel, … Freestone","2020","Nat. Commun.","j","Critical slowing biomarker forecasting","https://doi.org/10.1038/s41467-020-15908-3"],
+  ["N","N_2021_Proix","Proix, Truccolo, Leguia, … Baud","2021","Lancet Neurol.","j","Cycle-based forecasting, 175 patients","https://pmc.ncbi.nlm.nih.gov/articles/PMC7968722/"],
+  ["N","N_2024_Khambhati","Khambhati, Chang, Baud, Rao","2024","Nature Medicine","j","90-s connectivity forecasting (abs)","https://www.nature.com/articles/s41591-024-03149-6"],
+  ["N","N_2025_Duma","Duma, Cuozzo, … Bonanni, Pellegrino","2025","BMC Medicine","j","Scalp aperiodic exponent (E/I) before seizures","https://doi.org/10.1186/s12916-025-04447-7"],
+  ["N","N_foundational","Wendling et al.; Jirsa et al.","2002; 2014","Eur. J. Neurosci.; Brain","j","Wendling NMM; Epileptor","https://doi.org/10.1093/brain/awu133"],
+  ["F","F_2021_Kostas","Kostas, Aroca-Ouellette, Rudzicz","2021","Front. Hum. Neurosci.","j","BENDR foundation model","https://www.frontiersin.org/journals/human-neuroscience/articles/10.3389/fnhum.2021.653659/full"],
+  ["F","F_2023_Yang","Yang, Westover, Sun","2023","NeurIPS","c","BIOT biosignal transformer","https://arxiv.org/abs/2305.10351"],
+  ["F","F_2024_Jiang","Jiang, Zhao, Lu","2024","ICLR","c","LaBraM","https://arxiv.org/abs/2405.18765"],
+  ["F","F_2024_Wang_EEGPT","Wang, Liu, He, Xu, Ma, Li","2024","NeurIPS","c","EEGPT (no TUH pretraining)","https://proceedings.neurips.cc/paper_files/paper/2024/hash/4540d267eeec4e5dbd9dae9448f0b739-Abstract-Conference.html"],
+  ["F","F_2025_Kastrati","Kastrati, Bürki, Lauer, Xuan, Iaquinto, Wattenhofer","2025","NeurIPS (likely workshop)","c","EEG-Bench clinical FM benchmark","https://github.com/ETH-DISCO/EEG-Bench"],
+  ["F","F_2025_Wang_CBraMod","Wang, Zhao, Luo, … Pan","2025","ICLR","c","CBraMod","https://arxiv.org/abs/2412.07236"],
+  ["F","F_2026_Liu","Liu, Chen, … Wu","2026","National Science Review","j","EEG-FM-Compass review + benchmark","https://arxiv.org/abs/2601.17883"],
+  ["B","B_2003_Leutmezer","Leutmezer, Schernthaner, Lurger, Pötzelberger, Baumgartner","2003","Epilepsia","j","Heart rate at seizure onset (abs)","https://pubmed.ncbi.nlm.nih.gov/12614390/"],
+  ["B","B_2014_Kato","Kato, Jin, … Nakasato","2014","Neurology","j","Right vs left tachycardia timing (abs)","https://www.neurology.org/doi/10.1212/WNL.0000000000000864"],
+  ["B","B_2019_Jeppesen","Jeppesen, Fuglsang-Frederiksen, … Beniczky","2019","Epilepsia","j","HRV wearable ECG detection (abs)","https://onlinelibrary.wiley.com/doi/10.1111/epi.16343"],
+  ["B","B_2019_Regalia","Regalia, Onorati, Lai, Caborni, Picard","2019","Epilepsy Res.","j","Wrist EDA + accelerometry","https://pubmed.ncbi.nlm.nih.gov/30846346/"],
+  ["B","B_2021_Stirling","Stirling, Grayden, … Karoly","2021","Front. Neurol.","j","Smartwatch forecasting (abs)","https://pubmed.ncbi.nlm.nih.gov/34335457/"],
+  ["B","B_2022_Karacsony","Karácsony, Loesch-Biffar, Vollmar, Rémi, Noachtar, Cunha","2022","Sci. Rep.","j","3D video semiology classification","https://www.nature.com/articles/s41598-022-23133-9"],
+  ["B","B_2025_Jeppesen","Jeppesen, Christensen, Ahrenfeldt Petersen et al.","2025","eBioMedicine","j","Phase 3 real-time ECG detection","https://www.sciencedirect.com/science/article/pii/S2352396425003962"],
+  ["B","B_2026_Swinnen","Swinnen, Bhagubai, … Van Paesschen","2026","Epilepsia Open","j","SeizeIT2 behind-ear EEG + ECG (abs)","https://onlinelibrary.wiley.com/doi/full/10.1002/epi4.70260"]
+  ];
+  var KEY="nmw-read-v1", read={};
+  try{ read=JSON.parse(localStorage.getItem(KEY)||"{}")||{}; }catch(e){ read={}; }
+  function save(){ try{ localStorage.setItem(KEY,JSON.stringify(read)); }catch(e){} }
+  var typeLabel={j:["Journal","j"],c:["Conference","c"],p:["Preprint","p"]};
+  var tb=document.querySelector("#papers tbody");
+  P.forEach(function(r,i){
+    var tr=document.createElement("tr"); tr.dataset.topic=r[0]; tr.id="row-"+r[1];
+    var t=typeLabel[r[5]];
+    tr.innerHTML='<td class="chk"><input type="checkbox" id="chk-'+r[1]+'" aria-label="Mark '+r[1]+' as read"></td>'+
+      '<td class="num"><a href="'+r[7]+'" target="_blank" rel="noopener">'+r[1]+'</a></td>'+
+      '<td>'+r[2]+'</td><td class="num">'+r[3]+'</td><td><em>'+r[4]+'</em></td>'+
+      '<td><span class="pill '+t[1]+'">'+t[0]+'</span></td><td>'+r[6]+'</td>';
+    var cb=tr.querySelector("input"); cb.checked=!!read[r[1]]; if(cb.checked) tr.classList.add("done");
+    cb.addEventListener("change",function(){ read[r[1]]=cb.checked; if(!cb.checked) delete read[r[1]]; tr.classList.toggle("done",cb.checked); save(); prog(); });
+    tb.appendChild(tr);
+  });
+  function prog(){ var n=Object.keys(read).filter(function(k){return read[k];}).length; document.getElementById("prog").textContent=n+" / "+P.length+" read"; document.getElementById("progbar").style.width=(100*n/P.length)+"%"; }
+  prog();
+  var btns=document.querySelectorAll(".filters button");
+  btns.forEach(function(b){ b.addEventListener("click",function(){
+    btns.forEach(function(x){x.setAttribute("aria-pressed","false");}); b.setAttribute("aria-pressed","true");
+    var f=b.dataset.f; tb.querySelectorAll("tr").forEach(function(tr){ tr.hidden = !(f==="all"||tr.dataset.topic===f); });
+  });});
+})();
+</script>
