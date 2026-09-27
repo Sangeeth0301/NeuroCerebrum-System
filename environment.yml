@@ -1,0 +1,21 @@
+# Conda environment for NeuroMech-Warn.
+# Create:   conda env create -f environment.yml
+# Activate: conda activate neuromech
+# CPU-only machine: replace "pytorch-cuda=12.1" with "cpuonly".
+name: neuromech
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - pytorch>=2.3
+  - pytorch-cuda=12.1
+  - numpy>=1.26
+  - scipy>=1.11
+  - pandas>=2.1
+  - pip:
+      - -r requirements.txt
+      - -r requirements-dev.txt
+      - -e .

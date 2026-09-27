@@ -1,0 +1,36 @@
+# Folder layout. Values come from .env (see .env.example) with safe defaults.
+paths:
+  root: ${hydra:runtime.cwd}
+
+  # Datasets (never committed)
+  tusz_root: ${oc.env:TUSZ_ROOT,data/raw/tusz}
+  tuar_root: ${oc.env:TUAR_ROOT,data/raw/tuar}
+  chbmit_root: ${oc.env:CHBMIT_ROOT,data/raw/chbmit}
+  siena_root: ${oc.env:SIENA_ROOT,data/raw/siena}
+
+  # Pipeline stages
+  interim: data/interim
+  processed: data/processed
+  windows: ${paths.processed}/windows
+  features: ${paths.processed}/features
+  twin_posteriors: ${paths.processed}/twin_posteriors
+  metadata: ${paths.processed}/metadata.parquet
+  simulations: data/simulations
+  cache: data/cache
+
+  # Splits (committed)
+  splits: splits
+
+  # Outputs (never committed)
+  output_root: ${oc.env:OUTPUT_ROOT,outputs}
+  checkpoints: ${paths.output_root}/checkpoints
+  logs: ${paths.output_root}/logs
+  mlruns: ${oc.env:MLFLOW_TRACKING_URI,outputs/mlruns}
+  predictions: ${paths.output_root}/predictions
+  calibration: ${paths.output_root}/calibration
+  results: ${paths.output_root}/results
+  figures: ${paths.output_root}/figures
+  reports: ${paths.output_root}/reports
+
+  # Documentation targets
+  docs: DOCS

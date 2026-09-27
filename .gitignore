@@ -1,0 +1,55 @@
+# ── Datasets: never commit (TUSZ / TUAR are under a data use agreement) ──
+#    Everything under data/ is ignored except the folder skeleton and its README.
+data/**
+!data/**/
+!data/**/.gitkeep
+!data/README.md
+*.edf
+*.EDF
+
+# ── Experiment outputs (folder skeleton only) ──
+outputs/**
+!outputs/**/
+!outputs/**/.gitkeep
+/mlruns/
+/wandb/
+lightning_logs/
+multirun/
+.hydra/
+*.ckpt
+*.pt
+*.pth
+*.onnx
+*.safetensors
+
+# ── Secrets / local settings ──
+.env
+.env.*
+!.env.example
+
+# ── Python ──
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+.python-version
+
+# ── Tools ──
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+.ipynb_checkpoints/
+
+# ── OS / editors ──
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+.idea/
