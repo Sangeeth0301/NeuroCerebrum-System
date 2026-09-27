@@ -1,0 +1,53 @@
+# NeuroMech-Warn — top-level Hydra configuration.
+#
+# Run any script with overrides, e.g.
+#   python scripts/10_finetune.py experiment=v2_full train.optim.lr=3e-4
+#
+# Config groups are added phase by phase (see DOCS/ROADMAP.md):
+#   data/        P1, P4, P9      preprocess/  P2
+#   features/    P4              twin/        P7
+#   model/       P5, P8          train/       P5, P11
+#   alarm/       P6              eval/        P3
+#   experiment/  P3, P5, P8, P9
+# Uncomment each group in `defaults` when its phase lands.
+
+defaults:
+  - paths
+  # - data: tusz
+  # - preprocess/filters@preprocess.filters: filters
+  # - preprocess/windows@preprocess.windows: windows
+  # - preprocess/labels@preprocess.labels: labels
+  # - features/neuro_bank@features.neuro_bank: neuro_bank
+  # - features/ecg@features.ecg: ecg
+  # - twin/wendling@twin.wendling: wendling
+  # - twin/sbi@twin.sbi: sbi
+  # - model: gnm_ode
+  # - train/optim@train.optim: optim
+  # - alarm/cascade@alarm.cascade: cascade
+  # - alarm/calibration@alarm.calibration: calibration
+  # - eval: eval
+  # - experiment: null
+  - _self_
+
+project:
+  name: neuromech-warn
+  version: ${oc.env:NEUROMECH_VERSION,0.1.0}
+
+seed: ${oc.decode:${oc.env:NEUROMECH_SEED,42}}
+deterministic: false
+
+# Hardware
+device: auto          # auto | cpu | cuda
+num_workers: 4
+precision: 32         # 32 | 16-mixed | bf16-mixed
+
+# Logging / tracking
+tracking:
+  backend: mlflow     # mlflow | json
+  experiment: ${project.name}
+
+hydra:
+  run:
+    dir: ${paths.output_root}/hydra/${now:%Y-%m-%d}/${now:%H-%M-%S}
+  job:
+    chdir: false
