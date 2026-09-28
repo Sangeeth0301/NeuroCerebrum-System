@@ -39,6 +39,12 @@ A short record of each important decision: what was decided, why, and what was r
 **Branch per phase, small conventional commits, review before merge.**
 - *Why:* the owner reviews each phase before it enters `main`.
 
-## D-009 · 2026-09-27 · accepted
+## D-009 · 2026-09-27 · superseded by D-010
 **Reference PDFs already tracked in `ref/` stay tracked for now.**
 - *Why:* they were committed before P0. If the repository becomes public, consider removing them (publisher copyright) and keeping only `ref/MISSING_PAPERS.md`-style link lists.
+
+## D-010 · 2026-09-27 · accepted
+**Reference PDFs are no longer tracked; `ref/` holds link lists only.**
+- *Why:* the repository is public and the PDFs are publisher copyright. Local copies stay on each researcher's disk (`ref/*.pdf` is git-ignored); `ref/README.md` lists all 30 open-access sources with a one-command download, and `ref/MISSING_PAPERS.md` lists the paywalled ones.
+- *Note:* the PDFs still exist in older commits of the history. Removing them from history needs a history rewrite and force-push, which is a separate, deliberate decision.
+- *Rejected:* making the whole repository private (the code and docs are meant to be public).

@@ -7,6 +7,9 @@ data/**
 *.edf
 *.EDF
 
+# ── Reference papers: keep locally, never publish (publisher copyright) ──
+ref/*.pdf
+
 # ── Experiment outputs (folder skeleton only) ──
 outputs/**
 !outputs/**/

@@ -10,7 +10,7 @@ NeuroMech-Warn is a research project on the Temple University Hospital EEG Seizu
 
 | Phase | Scope | Status |
 |---|---|---|
-| P0 | Project setup and scaffolding | ✅ in review |
+| P0 | Project setup and scaffolding | ✅ done |
 | P1 | Data foundation and TUSZ audit | ⏳ waiting for dataset |
 | P2–P12 | Pipeline, models, evaluation, dashboard, deployment, paper | planned |
 
@@ -78,7 +78,7 @@ data/       local datasets (git-ignored)
 outputs/    checkpoints, logs, results (git-ignored)
 DOCS/       problem statement, architecture, roadmap, decisions
 research/   literature review
-ref/        reference papers
+ref/        reference paper list with download links (PDFs kept locally, not in git)
 ```
 
 ## License
