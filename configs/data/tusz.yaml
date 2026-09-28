@@ -1,0 +1,99 @@
+# TUH EEG Seizure Corpus (TUSZ) v2.0.x — dataset description used by neuromech.data.
+# Paths come from configs/paths.yaml (.env: TUSZ_ROOT).
+name: tusz
+version: "2.0"                 # expected major.minor; exact release is recorded by the audit
+root: ${paths.tusz_root}
+edf_subdir: edf                # <root>/edf/{train,dev,eval}/<patient>/<session>/<montage>/*.edf
+
+official_splits: [train, dev, eval]
+
+# Montage folders present in TUSZ v2 and their reference type.
+montage_types:
+  01_tcp_ar:   {reference: ar, has_ears: true}
+  02_tcp_le:   {reference: le, has_ears: true}
+  03_tcp_ar_a: {reference: ar, has_ears: false}   # no A1/A2 electrodes
+  04_tcp_le_a: {reference: le, has_ears: false}
+
+# 22-channel TCP bipolar montage (NEDC standard order). Each entry: anode - cathode.
+tcp_channels:
+  - [FP1, F7]
+  - [F7, T3]
+  - [T3, T5]
+  - [T5, O1]
+  - [FP2, F8]
+  - [F8, T4]
+  - [T4, T6]
+  - [T6, O2]
+  - [A1, T3]
+  - [T3, C3]
+  - [C3, CZ]
+  - [CZ, C4]
+  - [C4, T4]
+  - [T4, A2]
+  - [FP1, F3]
+  - [F3, C3]
+  - [C3, P3]
+  - [P3, O1]
+  - [FP2, F4]
+  - [F4, C4]
+  - [C4, P4]
+  - [P4, O2]
+
+# Electrode name aliases (10-10 names -> TUSZ 10-20 names).
+electrode_aliases:
+  T7: T3
+  T8: T4
+  P7: T5
+  P8: T6
+
+# Raw EDF channel labels look like "EEG FP1-REF" (AR) or "EEG FP1-LE" (LE).
+channel_label_regex: '^(?:EEG\s+)?([A-Z0-9]+)-(?:REF|LE|AR|AVG)$'
+
+# ECG / EKG channel labels (first match is used).
+ecg_label_regex: '(?i)^(?:EEG\s+)?(?:EKG|ECG)\d*(?:-(?:REF|LE))?$'
+
+# Annotation files next to each EDF.
+annotations:
+  channel_suffix: .csv         # per-channel events (channel = TCP pair, e.g. FP1-F7)
+  term_suffix: .csv_bi         # whole-recording events (channel = TERM; labels seiz/bckg)
+  background_labels: [bckg, null]
+  seizure_labels: [seiz, fnsz, gnsz, spsz, cpsz, absz, tnsz, cnsz, tcsz, atsz, mysz]
+
+# Seizure-type taxonomy used by the type head (H5).
+seizure_types:
+  fnsz: {name: focal non-specific,       group: focal}
+  spsz: {name: simple partial,           group: focal}
+  cpsz: {name: complex partial,          group: focal}
+  gnsz: {name: generalized non-specific, group: generalized}
+  absz: {name: absence,                  group: generalized}
+  tnsz: {name: tonic,                    group: generalized}
+  cnsz: {name: clonic,                   group: generalized}
+  tcsz: {name: tonic-clonic,             group: generalized}
+  atsz: {name: atonic,                   group: generalized}
+  mysz: {name: myoclonic,                group: generalized}
+
+# 4-class scheme (Tang et al. 2022) used as the primary type result.
+four_class:
+  CF: [fnsz, spsz, cpsz]       # combined focal
+  GN: [gnsz]                   # generalized non-specific
+  AB: [absz]                   # absence
+  CT: [tnsz, tcsz, cnsz]       # combined tonic / clonic
+  # atsz, mysz are too rare for patient-wise evaluation and are excluded from 4-class metrics.
+
+# Events closer than this are merged into one seizure (seconds).
+merge_gap_s: 0.0
+
+# Audit (scripts/00_audit_tusz.py)
+audit_preictal_minutes: [1, 2, 5, 10, 15, 20, 30]   # horizons checked for hazard bins
+audit_limit: null              # audit only the first N files (quick check); null = all
+dry_run: false                 # true = use a synthetic TUSZ in data/cache (no real data needed)
+audit_report: ${paths.docs}/DATA_AUDIT.md
+seizures_table: ${paths.processed}/seizures.parquet
+
+# Splits written by scripts/01_make_splits.py
+splits:
+  dev_b_fraction: 0.5          # official dev split by patient into dev_a (selection) / dev_b (calibration)
+  seed: 42
+  # If a patient appears in more than one official split, drop them from the non-eval side
+  # so the official eval set stays comparable with published work.
+  overlap_policy: drop_from_train_dev

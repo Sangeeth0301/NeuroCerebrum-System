@@ -13,7 +13,7 @@
 
 defaults:
   - paths
-  # - data: tusz
+  - data: tusz
   # - preprocess/filters@preprocess.filters: filters
   # - preprocess/windows@preprocess.windows: windows
   # - preprocess/labels@preprocess.labels: labels

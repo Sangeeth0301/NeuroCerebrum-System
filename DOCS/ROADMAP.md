@@ -10,7 +10,7 @@ Every file of the project belongs to exactly one phase. A phase is finished only
 | Phase | Name | Est. time | Depends on | Status |
 |---|---|---|---|---|
 | P0 | Project setup and scaffolding | ~1 wk | – | ✅ done (PR #1, fixes PR #2) |
-| P1 | Data foundation and TUSZ audit | ~2 wk | P0, TUSZ | ⏳ waiting for dataset |
+| P1 | Data foundation and TUSZ audit | ~2 wk | P0, TUSZ | 🟡 code done · real audit + splits wait for TUSZ |
 | P2 | Preprocessing, windows and labels | ~2 wk | P1 | planned |
 | P3 | Evaluation framework and baselines | ~2–3 wk | P2 | planned |
 | P4 | Artifact gate, neuro-dynamics bank, ECG | ~2–3 wk | P2, TUAR | planned |
@@ -75,6 +75,16 @@ Tests       tests/test_montage.py · test_splits_no_leakage.py
 Generated   data/processed/metadata.parquet
 ```
 **Done when:** DATA_AUDIT.md reports preictal lengths, per-channel label coverage, ECG availability, type counts and chosen hazard bins; splits frozen with no patient overlap.
+
+**Added in P1 (not in the original list):**
+```
+Source      src/neuromech/data/audit.py      audit logic, testable outside the script
+            src/neuromech/data/splits.py     split logic + leakage checks, testable outside the script
+            src/neuromech/data/synthetic.py  fake TUSZ v2 tree for tests and dry runs
+Tests       tests/test_edf_reader.py · test_annotations.py · test_audit.py
+```
+**Status:** all code and 48 new tests done; dry run works (`data.dry_run=true`).
+**Pending real data:** run `make audit` and `make splits`, commit `DOCS/DATA_AUDIT.md` and `splits/*.txt`, set hazard bins in P2.
 
 ## P2 · Preprocessing, windows and labels
 ```
